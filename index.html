@@ -558,6 +558,7 @@ function renderReviewForm() {
       if (field === "price") v = parseFloat(v) || 0;
       if (field === "vatRate") v = parseFloat(v);
       reviewData.accessories[idx][field] = v;
+      updateTotals();
     });
   });
   $("#generateBtn").disabled = false;
@@ -777,19 +778,25 @@ function updateTotals() {
       `;
     }
   };
+  // Accessory totals (sum of net prices and sum of VATs)
+  const accList = (d.accessories || []).filter(a => a && a.price > 0);
+  const accNet = accList.reduce((s, a) => s + (a.price || 0), 0);
+  const accVat = accList.reduce((s, a) => s + (a.price || 0) * (a.vatRate != null ? a.vatRate : 0.2), 0);
+  const accLine = accNet > 0 ? `<div class="row"><span>Accessories (${accList.length} line${accList.length===1?"":"s"}, ex VAT)</span><strong>${gbp(accNet)}</strong></div>` : "";
+  const accVatLine = accVat > 0 ? `<div class="row"><span>VAT on accessories</span><strong>${gbp(accVat)}</strong></div>` : "";
   if (mode === "new") {
     const ved = lookupVed(d.emissions||0).rate;
-    const total = d.newCarPrice + d.lessDiscount + d.tracker + d.gtechniq - d.pcgbContribution;
-    const vat = (d.newCarPrice + d.lessDiscount + d.gtechniq + d.tracker - d.pcgbContribution) * 0.2;
+    const total = d.newCarPrice + d.lessDiscount + d.tracker + d.gtechniq + accNet - d.pcgbContribution;
+    const vat = (d.newCarPrice + d.lessDiscount + d.gtechniq + d.tracker - d.pcgbContribution) * 0.2 + accVat;
     const grand = total + vat + ved + d.firstRegFee + d.gap - d.pfsDeposit;
-    t.innerHTML = `<div class="row"><span>Total (ex VAT)</span><strong>${gbp(total)}</strong></div><div class="row"><span>VAT @ 20%</span><strong>${gbp(vat)}</strong></div><div class="row"><span>First Year VED (gov.uk lookup)</span><strong>${gbp(ved)}</strong></div><div class="row"><span>First Reg Fee</span><strong>${gbp(d.firstRegFee)}</strong></div><div class="row grand"><span>INVOICE TOTAL (approx)</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected Price</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
+    t.innerHTML = `<div class="row"><span>Total (ex VAT)</span><strong>${gbp(total)}</strong></div>${accLine}<div class="row"><span>VAT @ 20% (on base)</span><strong>${gbp((d.newCarPrice + d.lessDiscount + d.gtechniq + d.tracker - d.pcgbContribution) * 0.2)}</strong></div>${accVatLine}<div class="row"><span>First Year VED (gov.uk lookup)</span><strong>${gbp(ved)}</strong></div><div class="row"><span>First Reg Fee</span><strong>${gbp(d.firstRegFee)}</strong></div><div class="row grand"><span>INVOICE TOTAL</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected Price</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
   } else {
-    const sub = d.usedCarPrice + d.gtechniq;
-    const vatOpts = d.gtechniq * 0.2;
+    const sub = d.usedCarPrice + d.gtechniq + accNet;
+    const vatOpts = d.gtechniq * 0.2 + accVat;
     const main = sub + vatOpts;
     const supp = d.warrantyPrice + d.assistancePrice;
     const grand = main + supp;
-    t.innerHTML = `<div class="row"><span>Used Car Price</span><strong>${gbp(d.usedCarPrice)}</strong></div><div class="row"><span>Gtechniq</span><strong>${gbp(d.gtechniq)}</strong></div><div class="row"><span>VAT on options</span><strong>${gbp(vatOpts)}</strong></div><div class="row"><span>Main invoice</span><strong>${gbp(main)}</strong></div><div class="row"><span>Supplementary (Warranty + Assistance)</span><strong>${gbp(supp)}</strong></div><div class="row grand"><span>GRAND TOTAL</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected OTR</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
+    t.innerHTML = `<div class="row"><span>Used Car Price</span><strong>${gbp(d.usedCarPrice)}</strong></div><div class="row"><span>Gtechniq</span><strong>${gbp(d.gtechniq)}</strong></div>${accLine}<div class="row"><span>VAT on options</span><strong>${gbp(vatOpts)}</strong></div><div class="row"><span>Main invoice</span><strong>${gbp(main)}</strong></div><div class="row"><span>Supplementary (Warranty + Assistance)</span><strong>${gbp(supp)}</strong></div><div class="row grand"><span>GRAND TOTAL</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected OTR</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
   }
   // Disable Generate button if finance is on but no amount entered
   const genBtn = document.getElementById("generateBtn");
