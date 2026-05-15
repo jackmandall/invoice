@@ -629,6 +629,18 @@ const VED_TABLE_2026 = [
   {min:256,max:9999,rate:5690,label:"Over 255 g/km"}
 ];
 
+// Determine Diesel/Hybrid fuel category for a Porsche model.
+// Returns: "Yes D" for pure electric (Taycan, BEV Macan), "Yes" for hybrid/PHEV, "No" for petrol/diesel.
+function getFuelType(modelName) {
+  if (!modelName) return "No";
+  const m = String(modelName).toLowerCase();
+  // Pure electric
+  if (/taycan|\bbev\b|electric/.test(m)) return "Yes D";
+  // Hybrid / Plug-in hybrid
+  if (/e-?hybrid|t-?hybrid|\bhybrid\b/.test(m)) return "Yes";
+  return "No";
+}
+
 function lookupVed(co2) {
   const c = Math.max(0, Math.round(Number(co2)||0));
   for (const b of VED_TABLE_2026) if (c >= b.min && c <= b.max) return b;
@@ -739,6 +751,10 @@ function populateNew(wb, d) {
   ws.getCell("E14").value = null;
   ws.getCell("E16").value = d.carModel||null;
   ws.getCell("H18").value = d.emissions||240;
+  // H19 holds the Diesel/Hybrid fuel check. Template formula references a workbook named range
+  // (Alt_fuel_check_list) that ExcelJS does not preserve, so we write the value directly.
+  // "Yes D" = pure electric (zero emission), "Yes" = hybrid/alt fuel, "No" = petrol/diesel.
+  ws.getCell("H19").value = getFuelType(d.carModel);
   ws.getCell("B18").value = d.deliveryDay; ws.getCell("C18").value = d.deliveryMonth; ws.getCell("D18").value = d.deliveryYear;
   ws.getCell("B19").value = d.invoiceDay; ws.getCell("C19").value = d.invoiceMonth; ws.getCell("D19").value = d.invoiceYear;
   ws.getCell("L17").value = d.name||null;
