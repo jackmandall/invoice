@@ -239,6 +239,9 @@ function findMatch(text, regex) { const m=text.match(regex); return m?m[1].trim(
 function extractNewOrder(text) {
   const d = {};
   d.name = findMatch(text, /Name:\s*([A-Z][A-Za-z\s\.\-]+?)(?:\n|Company Name)/);
+  // Company Name from the New Vehicle Order Form. Blank for individuals.
+  d.companyName = findMatch(text, /Company Name:\s*([^\n]+?)(?:\s+Leave blank|\s*\n)/);
+  if (/Leave blank/i.test(d.companyName)) d.companyName = "";
   const addrM = text.match(/Address:\s*([\s\S]+?)(?:Tel \(Home\)|Tel \(Mob\)|Telephone)/);
   if (addrM) {
     d.address = addrM[1].split(/\n/).map(s => s.trim()).filter(s => s && !/Great Britain/i.test(s));
@@ -259,7 +262,32 @@ function extractNewOrder(text) {
   d.deposit = num(findMatch(text, /Deposit:\s*£\s*([\d,\.]+)/));
   d.rfl = num(findMatch(text, /\nRFL\s*£\s*([\d,\.]+)/));
   d.regFee = num(findMatch(text, /Reg Fee\s*£\s*([\d,\.]+)/));
+  // Accessories - parse Tequipment and Dealer Fitted Options Taxable sections
+  d.accessories = extractSectionItems(text, /Tequipment[^\n]*Taxable/i)
+    .concat(extractSectionItems(text, /Dealer Fitted Options[^\n]*?-\s*Taxable/i));
   return d;
+}
+
+// Extract line items from a "Description / Price" block ending in "Sub Total"
+function extractSectionItems(text, headingRegex) {
+  const items = [];
+  const start = text.search(headingRegex);
+  if (start < 0) return items;
+  const slice = text.slice(start);
+  const blockM = slice.match(/Description[^\n]*Price\s*\n([\s\S]*?)Sub Total/);
+  if (!blockM) return items;
+  const lines = blockM[1].split(/\n/);
+  for (const line of lines) {
+    const m = line.match(/^\s*(.+?)\s+£\s*([\d,\.]+)\s*$/);
+    if (m) {
+      const desc = m[1].trim();
+      const price = parseFloat(m[2].replace(/,/g, ""));
+      if (desc && !isNaN(price) && price > 0 && !/^Description$|^Price$|^Sub Total$/i.test(desc)) {
+        items.push({ desc, price, vatRate: 0.2 });
+      }
+    }
+  }
+  return items;
 }
 
 function extractBuildSheet(text) {
@@ -322,6 +350,23 @@ function extractUsedOrder(text) {
   d.assistPrice = num(findMatch(text, /Porsche Assist[^\n]*?£\s*([\d,\.]+)/));
   d.warrantyMonths = parseInt(findMatch(text, /\b911\s*-\s*(\d+)\s*months/) || "0");
   d.warrantyPrice = num(findMatch(text, /\b911\s*-\s*\d+\s*months[^\n]*?£\s*([\d,\.]+)/));
+  // Accessories - retailer options excluding the three that are handled separately
+  d.accessories = [];
+  const retM = text.match(/Retailer Options[\s\S]*?£\s*Price[^\n]*\n([\s\S]*?)Retailer Options Total/);
+  if (retM) {
+    const lines = retM[1].split(/\n/);
+    for (const line of lines) {
+      const m = line.match(/^\s*(.+?)\s+£\s*([\d,\.]+)\s+£\s*([\d,\.]+)\s+£\s*([\d,\.]+)/);
+      if (!m) continue;
+      const desc = m[1].trim();
+      const exVat = parseFloat(m[2].replace(/,/g, ""));
+      const tax = parseFloat(m[3].replace(/,/g, ""));
+      if (/Gtechniq|Porsche Assist|^\d{3}\s*-\s*\d+\s*months/i.test(desc)) continue;
+      if (desc && !isNaN(exVat) && exVat > 0) {
+        d.accessories.push({ desc, price: exVat, vatRate: tax > 0 ? 0.2 : 0 });
+      }
+    }
+  }
   return d;
 }
 
@@ -408,7 +453,9 @@ function combineNew(order, build) {
   const postCode = addrFiltered.length ? addrFiltered[addrFiltered.length-1] : "";
   const addressStreet = addrFiltered.slice(0,-1).join(", ");
   return {
-    name: order.name || build.customerName || "", soldTo: "Individual",
+    name: order.name || build.customerName || "",
+    companyName: order.companyName || "",
+    soldTo: (order.companyName ? "Company" : "Individual"),
     address: addressStreet, postCode, tel: order.tel||"", email: order.email||"",
     carModel: mapToParamModel(order.model || build.modelName || "", build.generation),
     emissions: 240,
@@ -420,6 +467,7 @@ function combineNew(order, build) {
     pcgbContribution: 0, pfsDeposit: 0, tracker: 0, gtechniq: 0, gap: 0,
     firstRegFee: order.regFee || 55,
     deposits: order.deposit || 0, financeAmount: 0, onFinance: false,
+    accessories: (order.accessories || []).slice(0, 7),
     expectedTotal: order.totalPrice
   };
 }
@@ -442,7 +490,7 @@ function combineUsed(used) {
     if (generation && !carName.startsWith(generation)) carName = generation + " " + carName;
   }
   return {
-    name: used.name || "", soldTo: "Individual", address, postCode, tel: used.mobile||"", email: used.email||"",
+    name: used.name || "", companyName: "", soldTo: "Individual", address, postCode, tel: used.mobile||"", email: used.email||"",
     regNo: used.regNo||"", mileage: used.mileage||0,
     carModel: mapToParamModel(carName, generation),
     vatQualifying: used.vatQualifying || "No",
@@ -457,6 +505,7 @@ function combineUsed(used) {
     warrantyMonths: used.warrantyMonths||24, warrantyPrice: used.warrantyPrice||0,
     assistanceMonths: used.assistMonths||24, assistancePrice: used.assistPrice||0,
     deposits: used.cashDeposit||0, financeAmount: used.financeBalance||0, onFinance: false,
+    accessories: (used.accessories || []).slice(0, 7),
     expectedTotal: used.totalOTR
   };
 }
@@ -468,11 +517,17 @@ function renderReviewForm() {
   const form = $("#reviewForm");
   form.innerHTML = mode==="new" ? newCarFormHtml(reviewData) : usedCarFormHtml(reviewData);
   form.querySelectorAll("[data-key]").forEach(inp => {
-    inp.addEventListener("input", () => {
+    const evt = (inp.tagName === "SELECT") ? "change" : "input";
+    inp.addEventListener(evt, () => {
       const k = inp.dataset.key; let v = inp.value;
       if (inp.type === "number") v = parseFloat(v) || 0;
       if (inp.type === "checkbox") v = inp.checked;
       reviewData[k] = v;
+      if (k === "soldTo") {
+        // Re-render to show/hide Company Name field and update Customer Name label
+        renderReviewForm();
+        return;
+      }
       if (k === "onFinance") {
         onFinance = inp.checked;
         const wrap = document.getElementById("financeAmountField");
@@ -489,6 +544,20 @@ function renderReviewForm() {
         }
       }
       updateTotals();
+    });
+  });
+  // Wire up the accessory rows (description / price / vat rate per row)
+  form.querySelectorAll("[data-acc-idx]").forEach(inp => {
+    const evt = (inp.tagName === "SELECT") ? "change" : "input";
+    inp.addEventListener(evt, () => {
+      const idx = parseInt(inp.dataset.accIdx);
+      const field = inp.dataset.accField;
+      if (!reviewData.accessories) reviewData.accessories = [];
+      while (reviewData.accessories.length <= idx) reviewData.accessories.push({desc:"", price:0, vatRate:0.2});
+      let v = inp.value;
+      if (field === "price") v = parseFloat(v) || 0;
+      if (field === "vatRate") v = parseFloat(v);
+      reviewData.accessories[idx][field] = v;
     });
   });
   $("#generateBtn").disabled = false;
@@ -508,14 +577,40 @@ function selectFld(label, key, val, opts) {
   return html;
 }
 
+// Renders 7 editable accessory rows. Each row maps to one Dealer Fit Options line on the template.
+function accessoriesHtml(d) {
+  const items = d.accessories || [];
+  const rows = [];
+  for (let i = 0; i < 7; i++) {
+    const it = items[i] || {desc:"", price:0, vatRate:0.2};
+    rows.push(`
+      <div class="grid" style="grid-template-columns: 1fr 130px 110px; gap:10px; margin-bottom:8px;">
+        <input type="text" data-acc-idx="${i}" data-acc-field="desc" placeholder="Accessory description" value="${(it.desc||"").replace(/"/g,'&quot;')}">
+        <input type="number" step="0.01" data-acc-idx="${i}" data-acc-field="price" placeholder="Price ex VAT" value="${it.price||""}">
+        <select data-acc-idx="${i}" data-acc-field="vatRate">
+          <option value="0.2" ${(it.vatRate===0.2||it.vatRate===undefined)?"selected":""}>20% VAT</option>
+          <option value="0" ${it.vatRate===0?"selected":""}>0% VAT</option>
+          <option value="0.05" ${it.vatRate===0.05?"selected":""}>5% VAT</option>
+        </select>
+      </div>
+    `);
+  }
+  return `
+    <div class="section-title">Dealer Fit Options (Accessories)</div>
+    <div style="font-size:11px;color:var(--muted);margin-bottom:10px;">Up to 7 lines. Auto-populated from Tequipment and Dealer Fitted Options (taxable) sections of the PDF. Edit or clear as needed.</div>
+    ${rows.join("")}
+  `;
+}
+
 function newCarFormHtml(d) {
   const modelOpts = ["", ...MODELS];
   const monthOpts = ["January","February","March","April","May","June","July","August","September","October","November","December"];
   return `
     <div class="section-title">Customer (Deliver To)</div>
     <div class="grid grid-2">
-      ${fld("Customer Name","name",d.name)}
       ${selectFld("Sold to","soldTo",d.soldTo,["Individual","Company"])}
+      <div id="companyNameField" style="${d.soldTo==="Company"?"":"display:none;"}"><label>Company Name</label><input type="text" data-key="companyName" value="${(d.companyName||"").replace(/"/g,'&quot;')}"></div>
+      ${fld(d.soldTo==="Company"?"Contact Person (optional)":"Customer Name","name",d.name)}
       ${fld("Address","address",d.address)}
       ${fld("Post Code","postCode",d.postCode)}
       ${fld("Tel No","tel",d.tel)}
@@ -551,6 +646,7 @@ function newCarFormHtml(d) {
       ${fld("Deposit Received","deposits",d.deposits,"number")}
       <div id="financeAmountField" style="${onFinance?"":"display:none;"}"><label>Finance Amount</label><input type="number" data-key="financeAmount" value="${d.financeAmount||""}"></div>
     </div>
+    ${accessoriesHtml(d)}
     <div class="row-checkbox">
       <input type="checkbox" id="onFinance" data-key="onFinance" ${onFinance?"checked":""}>
       <label for="onFinance">On Finance? (if ticked, the Invoice To section is set to Porsche Financial Services. The Deliver To section stays as the customer.)</label>
@@ -568,8 +664,9 @@ function usedCarFormHtml(d) {
   return `
     <div class="section-title">Customer (Deliver To)</div>
     <div class="grid grid-2">
-      ${fld("Customer Name","name",d.name)}
       ${selectFld("Sold to","soldTo",d.soldTo,["Individual","Company"])}
+      <div id="companyNameField" style="${d.soldTo==="Company"?"":"display:none;"}"><label>Company Name</label><input type="text" data-key="companyName" value="${(d.companyName||"").replace(/"/g,'&quot;')}"></div>
+      ${fld(d.soldTo==="Company"?"Contact Person (optional)":"Customer Name","name",d.name)}
       ${fld("Address","address",d.address)}
       ${fld("Post Code","postCode",d.postCode)}
       ${fld("Tel No","tel",d.tel)}
@@ -602,6 +699,7 @@ function usedCarFormHtml(d) {
       ${fld("Deposit Received","deposits",d.deposits,"number")}
       <div id="financeAmountField" style="${onFinance?"":"display:none;"}"><label>Finance Amount</label><input type="number" data-key="financeAmount" value="${d.financeAmount||""}"></div>
     </div>
+    ${accessoriesHtml(d)}
     <div class="row-checkbox">
       <input type="checkbox" id="onFinance" data-key="onFinance" ${onFinance?"checked":""}>
       <label for="onFinance">On Finance? (if ticked: Invoice To becomes Porsche Financial Services; warranty &amp; assistance go on the supplementary Dealer Options invoice. If unticked: Invoice To is the customer; warranty &amp; assistance go on the main invoice.)</label>
@@ -733,6 +831,7 @@ async function generate() {
 
 function populateNew(wb, d) {
   const ws = wb.getWorksheet("New Cars");
+  const isCompany = d.soldTo === "Company";
   ws.getCell("L10").value = null;
   if (onFinance) {
     ws.getCell("L11").value = PFS.contactName||null;
@@ -740,7 +839,15 @@ function populateNew(wb, d) {
     ws.getCell("L13").value = PFS.address;
     ws.getCell("L15").value = PFS.postCode;
     ws.getCell("N15").value = PFS.tel||null;
+  } else if (isCompany) {
+    // Company sale: Contact Name (L11) blank, Company Name in L12
+    ws.getCell("L11").value = null;
+    ws.getCell("L12").value = d.companyName || d.name || null;
+    ws.getCell("L13").value = d.address||null;
+    ws.getCell("L15").value = d.postCode||null;
+    ws.getCell("N15").value = d.tel||null;
   } else {
+    // Individual
     ws.getCell("L11").value = d.name||null;
     ws.getCell("L12").value = null;
     ws.getCell("L13").value = d.address||null;
@@ -757,8 +864,14 @@ function populateNew(wb, d) {
   ws.getCell("H19").value = getFuelType(d.carModel);
   ws.getCell("B18").value = d.deliveryDay; ws.getCell("C18").value = d.deliveryMonth; ws.getCell("D18").value = d.deliveryYear;
   ws.getCell("B19").value = d.invoiceDay; ws.getCell("C19").value = d.invoiceMonth; ws.getCell("D19").value = d.invoiceYear;
-  ws.getCell("L17").value = d.name||null;
-  ws.getCell("L18").value = null;
+  // Deliver To - company name in L18, contact name in L17 for company sales
+  if (isCompany) {
+    ws.getCell("L17").value = d.name||null; // optional contact
+    ws.getCell("L18").value = d.companyName || null;
+  } else {
+    ws.getCell("L17").value = d.name||null;
+    ws.getCell("L18").value = null;
+  }
   ws.getCell("L19").value = d.address||null;
   ws.getCell("L21").value = d.postCode||null;
   ws.getCell("N21").value = d.tel||null;
@@ -767,7 +880,20 @@ function populateNew(wb, d) {
   ws.getCell("E25").value = d.discountReason||null;
   ws.getCell("C28").value = d.pfsDeposit;
   ws.getCell("C29").value = d.pcgbContribution;
-  for (let r = 32; r <= 38; r++) ws.getCell(`C${r}`).value = 0;
+  // Dealer Fit Options - 7 rows starting row 32. Write description (A col), price (C col), VAT rate (E col).
+  for (let r = 32; r <= 38; r++) {
+    const accIdx = r - 32;
+    const acc = (d.accessories && d.accessories[accIdx]) || null;
+    if (acc && acc.price > 0) {
+      ws.getCell(`A${r}`).value = acc.desc || (accIdx + 1);
+      ws.getCell(`C${r}`).value = acc.price;
+      ws.getCell(`E${r}`).value = (acc.vatRate != null ? acc.vatRate : 0.2);
+    } else {
+      ws.getCell(`A${r}`).value = accIdx + 1;
+      ws.getCell(`C${r}`).value = 0;
+      ws.getCell(`E${r}`).value = 0.2;
+    }
+  }
   ws.getCell("C40").value = d.tracker;
   ws.getCell("C41").value = d.gtechniq;
   ws.getCell("C46").value = d.gap;
@@ -782,6 +908,7 @@ function populateNew(wb, d) {
 
 function populateUsed(wb, d) {
   const ws = wb.getWorksheet("Approved Cars");
+  const isCompany = d.soldTo === "Company";
   ws.getCell("L9").value = null;
   if (onFinance) {
     ws.getCell("L10").value = PFS.contactName||null;
@@ -789,15 +916,29 @@ function populateUsed(wb, d) {
     ws.getCell("L12").value = PFS.address;
     ws.getCell("L14").value = PFS.postCode;
     ws.getCell("N14").value = PFS.tel||null;
+  } else if (isCompany) {
+    // Company sale: Contact Name (L10) stays blank, Company Name in L11
+    ws.getCell("L10").value = null;
+    ws.getCell("L11").value = d.companyName || d.name || null;
+    ws.getCell("L12").value = d.address||null;
+    ws.getCell("L14").value = d.postCode||null;
+    ws.getCell("N14").value = d.tel||null;
   } else {
+    // Individual: Contact Name in L10, Company blank
     ws.getCell("L10").value = d.name||null;
     ws.getCell("L11").value = null;
     ws.getCell("L12").value = d.address||null;
     ws.getCell("L14").value = d.postCode||null;
     ws.getCell("N14").value = d.tel||null;
   }
-  ws.getCell("L16").value = d.name||null;
-  ws.getCell("L17").value = null;
+  // Deliver To section - same rule: company in L17, contact in L16
+  if (isCompany) {
+    ws.getCell("L16").value = d.name||null; // optional contact person
+    ws.getCell("L17").value = d.companyName || null;
+  } else {
+    ws.getCell("L16").value = d.name||null;
+    ws.getCell("L17").value = null;
+  }
   ws.getCell("L18").value = d.address||null;
   ws.getCell("L19").value = d.postCode||null;
   ws.getCell("N19").value = d.tel||null;
@@ -825,7 +966,18 @@ function populateUsed(wb, d) {
   ws.getCell("C30").value = 0;
   ws.getCell("C43").value = d.gtechniq;
   ws.getCell("C49").value = 0;
-  for (let r = 34; r <= 40; r++) ws.getCell(`C${r}`).value = 0;
+  // Dealer Fit Options - 7 rows starting row 34. Write description (A col), price (C col), VAT rate (E col).
+  for (let r = 34; r <= 40; r++) {
+    const accIdx = r - 34;
+    const acc = (d.accessories && d.accessories[accIdx]) || null;
+    if (acc && acc.price > 0) {
+      ws.getCell(`A${r}`).value = acc.desc || null;
+      ws.getCell(`C${r}`).value = acc.price;
+      ws.getCell(`E${r}`).value = (acc.vatRate != null ? acc.vatRate : 0.2);
+    } else {
+      ws.getCell(`C${r}`).value = 0;
+    }
+  }
   const pxClears = ["L22","L23","L24","L25","L26","L27","L28","L32","L33","L36","L38","L39"];
   pxClears.forEach(c => { ws.getCell(c).value = null; });
   ws.getCell("L41").value = {formula: "C52"};
