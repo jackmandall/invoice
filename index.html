@@ -262,9 +262,11 @@ function extractNewOrder(text) {
   d.deposit = num(findMatch(text, /Deposit:\s*£\s*([\d,\.]+)/));
   d.rfl = num(findMatch(text, /\nRFL\s*£\s*([\d,\.]+)/));
   d.regFee = num(findMatch(text, /Reg Fee\s*£\s*([\d,\.]+)/));
-  // Accessories - parse Tequipment and Dealer Fitted Options Taxable sections
-  d.accessories = extractSectionItems(text, /Tequipment[^\n]*Taxable/i)
-    .concat(extractSectionItems(text, /Dealer Fitted Options[^\n]*?-\s*Taxable/i));
+  // Accessories - parse Tequipment and Dealer Fitted Options Taxable BODY sections.
+  // Negative lookahead "(?!\s*\()" rejects the page 1 summary lines that read e.g.
+  // "Tequipment – Taxable (See attached page)". We only want the bare body section headers.
+  d.accessories = extractSectionItems(text, /Tequipment\s*[-–]\s*Taxable(?!\s*\()/i)
+    .concat(extractSectionItems(text, /Dealer Fitted Options\s*[-–]\s*Taxable(?!\s*\(|\s*Non)/i));
   return d;
 }
 
@@ -273,7 +275,11 @@ function extractSectionItems(text, headingRegex) {
   const items = [];
   const start = text.search(headingRegex);
   if (start < 0) return items;
-  const slice = text.slice(start);
+  // Limit the slice to before the next section header so we never cross into
+  // another section's Description/Price/Sub Total block.
+  let slice = text.slice(start);
+  const nextHeader = slice.slice(50).search(/(Tequipment|Dealer Fitted Options|Dealer Deductions|Important information|Vehicle Optional Equipment|Vehicle Description|Payment|Finance Amount)/i);
+  if (nextHeader > 0) slice = slice.slice(0, 50 + nextHeader);
   const blockM = slice.match(/Description[^\n]*Price\s*\n([\s\S]*?)Sub Total/);
   if (!blockM) return items;
   const lines = blockM[1].split(/\n/);
@@ -282,7 +288,10 @@ function extractSectionItems(text, headingRegex) {
     if (m) {
       const desc = m[1].trim();
       const price = parseFloat(m[2].replace(/,/g, ""));
-      if (desc && !isNaN(price) && price > 0 && !/^Description$|^Price$|^Sub Total$/i.test(desc)) {
+      // Skip rows that are clearly already-handled items (RFL goes to VED, Reg Fee has its own cell)
+      if (desc && !isNaN(price) && price > 0
+          && !/^Description$|^Price$|^Sub Total$/i.test(desc)
+          && !/^RFL$|^Reg Fee$|Centre Gesture/i.test(desc)) {
         items.push({ desc, price, vatRate: 0.2 });
       }
     }
@@ -452,13 +461,18 @@ function combineNew(order, build) {
   const addrFiltered = (order.address||[]).filter(l => !/^M[rs]+\.?\s/.test(l) && !/Great Britain/.test(l));
   const postCode = addrFiltered.length ? addrFiltered[addrFiltered.length-1] : "";
   const addressStreet = addrFiltered.slice(0,-1).join(", ");
+  const detectedModel = mapToParamModel(order.model || build.modelName || "", build.generation);
+  const fuelType = getFuelType(detectedModel);
+  // Only auto-fill emissions for pure electric models (we know they are 0).
+  // For petrol and hybrid the user MUST type the actual WLTP CO2 from the build sheet - no guessing.
+  const defaultEmissions = fuelType === "Yes D" ? 0 : null;
   return {
     name: order.name || build.customerName || "",
     companyName: order.companyName || "",
     soldTo: (order.companyName ? "Company" : "Individual"),
     address: addressStreet, postCode, tel: order.tel||"", email: order.email||"",
-    carModel: mapToParamModel(order.model || build.modelName || "", build.generation),
-    emissions: 240,
+    carModel: detectedModel,
+    emissions: defaultEmissions,
     deliveryDay: 15, deliveryMonth:"May", deliveryYear: new Date().getFullYear(),
     invoiceDay: 15, invoiceMonth:"May", invoiceYear: new Date().getFullYear(),
     newCarPrice: (order.modelPrice||build.basePrice||0) + (order.vehicleOptions||0),
@@ -520,13 +534,30 @@ function renderReviewForm() {
     const evt = (inp.tagName === "SELECT") ? "change" : "input";
     inp.addEventListener(evt, () => {
       const k = inp.dataset.key; let v = inp.value;
-      if (inp.type === "number") v = parseFloat(v) || 0;
+      if (inp.type === "number") {
+        // Preserve "blank" as null for emissions (so we can distinguish 0 EV from not-filled)
+        if (k === "emissions" && inp.value === "") v = null;
+        else v = parseFloat(v) || 0;
+      }
       if (inp.type === "checkbox") v = inp.checked;
       reviewData[k] = v;
       if (k === "soldTo") {
         // Re-render to show/hide Company Name field and update Customer Name label
         renderReviewForm();
         return;
+      }
+      if (k === "carModel" && mode === "new") {
+        // Only auto-fill emissions when we know it - i.e. pure EV is 0.
+        // For hybrid / petrol / diesel we clear it so the user supplies the actual WLTP figure.
+        const ft = getFuelType(v);
+        const emInp = form.querySelector('[data-key="emissions"]');
+        if (ft === "Yes D") {
+          reviewData.emissions = 0;
+          if (emInp) emInp.value = 0;
+        } else {
+          reviewData.emissions = null;
+          if (emInp) emInp.value = "";
+        }
       }
       if (k === "onFinance") {
         onFinance = inp.checked;
@@ -620,7 +651,7 @@ function newCarFormHtml(d) {
     <div class="section-title">Vehicle</div>
     <div class="grid grid-3">
       ${selectFld("Car Model","carModel",d.carModel,modelOpts)}
-      ${fld("Emissions g/km (WLTP CO2)","emissions",d.emissions,"number")}
+      <div><label>Emissions g/km (WLTP CO2) <span style="color:var(--err);">*required</span></label><input type="number" step="any" data-key="emissions" value="${d.emissions == null ? "" : d.emissions}" placeholder="Type WLTP CO2 from build sheet"></div>
       <div><label>First Year VED (auto)</label><div id="vedDisplay" style="padding:9px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--accent2);font-weight:600;">&mdash;</div></div>
     </div>
     <div style="font-size:11px;color:var(--muted);margin-top:-6px;margin-bottom:14px;">VED rate sourced from gov.uk first year table (2026/27 rates, registrations from 1 April 2026). Assumes petrol / RDE2 diesel / alt fuel band.</div>
@@ -741,316 +772,10 @@ function getFuelType(modelName) {
 }
 
 function lookupVed(co2) {
-  const c = Math.max(0, Math.round(Number(co2)||0));
+  if (co2 == null || co2 === "" || isNaN(co2)) return null;
+  const c = Math.max(0, Math.round(Number(co2)));
   for (const b of VED_TABLE_2026) if (c >= b.min && c <= b.max) return b;
   return VED_TABLE_2026[VED_TABLE_2026.length-1];
 }
 
-function updateVedDisplay() {
-  const el = document.getElementById("vedDisplay");
-  if (!el) return;
-  const b = lookupVed(reviewData.emissions||0);
-  el.innerHTML = `${gbp(b.rate)} <span style="color:var(--muted); font-weight:400; font-size:11px;">(${b.label})</span>`;
-}
-
-function updateTotals() {
-  if (mode === "new") updateVedDisplay();
-  const t = $("#totals");
-  if (!t) return;
-  const d = reviewData;
-  const financeBlock = (grand) => {
-    const balanceAfterDeposit = grand - (d.deposits||0);
-    const finAmt = d.financeAmount || 0;
-    const balanceFromCustomer = balanceAfterDeposit - finAmt;
-    if (onFinance) {
-      const needsFinance = finAmt <= 0;
-      return `
-        <div class="row"><span>Less Deposit</span><strong>${gbp(d.deposits||0)}</strong></div>
-        <div class="row"><span>Balance Due</span><strong>${gbp(balanceAfterDeposit)}</strong></div>
-        <div class="row"><span>Less Finance Amount</span><strong style="color:${needsFinance?'var(--err)':'var(--accent2)'};">${needsFinance?'ENTER FINANCE AMOUNT':gbp(finAmt)}</strong></div>
-        <div class="row grand"><span>Balance from Customer</span><strong>${gbp(balanceFromCustomer)}</strong></div>
-        ${needsFinance?`<div class="row" style="color:var(--err); font-size:11px; margin-top:6px;">Finance amount required to proceed (must be greater than £0.00).</div>`:""}
-      `;
-    } else {
-      return `
-        <div class="row"><span>Less Deposit</span><strong>${gbp(d.deposits||0)}</strong></div>
-        <div class="row"><span>Balance Due</span><strong>${gbp(balanceAfterDeposit)}</strong></div>
-      `;
-    }
-  };
-  // Accessory totals (sum of net prices and sum of VATs)
-  const accList = (d.accessories || []).filter(a => a && a.price > 0);
-  const accNet = accList.reduce((s, a) => s + (a.price || 0), 0);
-  const accVat = accList.reduce((s, a) => s + (a.price || 0) * (a.vatRate != null ? a.vatRate : 0.2), 0);
-  const accLine = accNet > 0 ? `<div class="row"><span>Accessories (${accList.length} line${accList.length===1?"":"s"}, ex VAT)</span><strong>${gbp(accNet)}</strong></div>` : "";
-  const accVatLine = accVat > 0 ? `<div class="row"><span>VAT on accessories</span><strong>${gbp(accVat)}</strong></div>` : "";
-  if (mode === "new") {
-    const ved = lookupVed(d.emissions||0).rate;
-    const total = d.newCarPrice + d.lessDiscount + d.tracker + d.gtechniq + accNet - d.pcgbContribution;
-    const vat = (d.newCarPrice + d.lessDiscount + d.gtechniq + d.tracker - d.pcgbContribution) * 0.2 + accVat;
-    const grand = total + vat + ved + d.firstRegFee + d.gap - d.pfsDeposit;
-    t.innerHTML = `<div class="row"><span>Total (ex VAT)</span><strong>${gbp(total)}</strong></div>${accLine}<div class="row"><span>VAT @ 20% (on base)</span><strong>${gbp((d.newCarPrice + d.lessDiscount + d.gtechniq + d.tracker - d.pcgbContribution) * 0.2)}</strong></div>${accVatLine}<div class="row"><span>First Year VED (gov.uk lookup)</span><strong>${gbp(ved)}</strong></div><div class="row"><span>First Reg Fee</span><strong>${gbp(d.firstRegFee)}</strong></div><div class="row grand"><span>INVOICE TOTAL</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected Price</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
-  } else {
-    const sub = d.usedCarPrice + d.gtechniq + accNet;
-    const vatOpts = d.gtechniq * 0.2 + accVat;
-    const main = sub + vatOpts;
-    const supp = d.warrantyPrice + d.assistancePrice;
-    const grand = main + supp;
-    t.innerHTML = `<div class="row"><span>Used Car Price</span><strong>${gbp(d.usedCarPrice)}</strong></div><div class="row"><span>Gtechniq</span><strong>${gbp(d.gtechniq)}</strong></div>${accLine}<div class="row"><span>VAT on options</span><strong>${gbp(vatOpts)}</strong></div><div class="row"><span>Main invoice</span><strong>${gbp(main)}</strong></div><div class="row"><span>Supplementary (Warranty + Assistance)</span><strong>${gbp(supp)}</strong></div><div class="row grand"><span>GRAND TOTAL</span><strong>${gbp(grand)}</strong></div>${financeBlock(grand)}${d.expectedTotal?`<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected OTR</span><span>${gbp(d.expectedTotal)}</span></div>`:""}`;
-  }
-  // Disable Generate button if finance is on but no amount entered
-  const genBtn = document.getElementById("generateBtn");
-  if (genBtn) {
-    if (onFinance && (!d.financeAmount || d.financeAmount <= 0)) {
-      genBtn.disabled = true;
-      genBtn.title = "Enter a finance amount greater than £0.00 to proceed.";
-    } else {
-      genBtn.disabled = false;
-      genBtn.title = "";
-    }
-  }
-}
-
-function stripTabs(wb, names) {
-  for (const name of names) {
-    const ws = wb.getWorksheet(name);
-    if (ws) { try { wb.removeWorksheet(ws.id); } catch (e) { console.warn("Could not remove", name, e); } }
-  }
-}
-
-async function generate() {
-  showStatus("Loading template...","warn");
-  const wb = new ExcelJS.Workbook();
-  await wb.xlsx.load(b64ToArrayBuffer(TEMPLATE_B64));
-  if (mode === "new") { populateNew(wb, reviewData); stripTabs(wb,["Approved Cars","Used Car Order Form"]); }
-  else { populateUsed(wb, reviewData); stripTabs(wb,["New Cars","Used Car Order Form","RFL"]); }
-  showStatus("Writing file...","warn");
-  const buf = await wb.xlsx.writeBuffer();
-  const blob = new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
-  const a = document.createElement("a");
-  const safeName = (reviewData.name||"Customer").replace(/[^\w\s\-]/g,"").trim();
-  const model = (reviewData.carModel||"Vehicle").replace(/[^\w\s\-]/g,"").trim();
-  const tag = mode==="new"?"NEW":"USED";
-  a.download = `Invoice Request - ${safeName} - ${model} (${tag}).xlsx`;
-  a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
-  showStatus("Done. File downloaded.","ok");
-}
-
-function populateNew(wb, d) {
-  const ws = wb.getWorksheet("New Cars");
-  const isCompany = d.soldTo === "Company";
-  ws.getCell("L10").value = null;
-  if (onFinance) {
-    ws.getCell("L11").value = PFS.contactName||null;
-    ws.getCell("L12").value = PFS.company;
-    ws.getCell("L13").value = PFS.address;
-    ws.getCell("L15").value = PFS.postCode;
-    ws.getCell("N15").value = PFS.tel||null;
-  } else if (isCompany) {
-    // Company sale: Contact Name (L11) blank, Company Name in L12
-    ws.getCell("L11").value = null;
-    ws.getCell("L12").value = d.companyName || d.name || null;
-    ws.getCell("L13").value = d.address||null;
-    ws.getCell("L15").value = d.postCode||null;
-    ws.getCell("N15").value = d.tel||null;
-  } else {
-    // Individual
-    ws.getCell("L11").value = d.name||null;
-    ws.getCell("L12").value = null;
-    ws.getCell("L13").value = d.address||null;
-    ws.getCell("L15").value = d.postCode||null;
-    ws.getCell("N15").value = d.tel||null;
-  }
-  ws.getCell("E12").value = d.soldTo||"Individual";
-  ws.getCell("E14").value = null;
-  ws.getCell("E16").value = d.carModel||null;
-  ws.getCell("H18").value = d.emissions||240;
-  // H19 holds the Diesel/Hybrid fuel check. Template formula references a workbook named range
-  // (Alt_fuel_check_list) that ExcelJS does not preserve, so we write the value directly.
-  // "Yes D" = pure electric (zero emission), "Yes" = hybrid/alt fuel, "No" = petrol/diesel.
-  ws.getCell("H19").value = getFuelType(d.carModel);
-  ws.getCell("B18").value = d.deliveryDay; ws.getCell("C18").value = d.deliveryMonth; ws.getCell("D18").value = d.deliveryYear;
-  ws.getCell("B19").value = d.invoiceDay; ws.getCell("C19").value = d.invoiceMonth; ws.getCell("D19").value = d.invoiceYear;
-  // Deliver To - company name in L18, contact name in L17 for company sales
-  if (isCompany) {
-    ws.getCell("L17").value = d.name||null; // optional contact
-    ws.getCell("L18").value = d.companyName || null;
-  } else {
-    ws.getCell("L17").value = d.name||null;
-    ws.getCell("L18").value = null;
-  }
-  ws.getCell("L19").value = d.address||null;
-  ws.getCell("L21").value = d.postCode||null;
-  ws.getCell("N21").value = d.tel||null;
-  ws.getCell("C23").value = d.newCarPrice;
-  ws.getCell("C25").value = d.lessDiscount;
-  ws.getCell("E25").value = d.discountReason||null;
-  ws.getCell("C28").value = d.pfsDeposit;
-  ws.getCell("C29").value = d.pcgbContribution;
-  // Dealer Fit Options - 7 rows starting row 32. Write description (A col), price (C col), VAT rate (E col).
-  for (let r = 32; r <= 38; r++) {
-    const accIdx = r - 32;
-    const acc = (d.accessories && d.accessories[accIdx]) || null;
-    if (acc && acc.price > 0) {
-      ws.getCell(`A${r}`).value = acc.desc || (accIdx + 1);
-      ws.getCell(`C${r}`).value = acc.price;
-      ws.getCell(`E${r}`).value = (acc.vatRate != null ? acc.vatRate : 0.2);
-    } else {
-      ws.getCell(`A${r}`).value = accIdx + 1;
-      ws.getCell(`C${r}`).value = 0;
-      ws.getCell(`E${r}`).value = 0.2;
-    }
-  }
-  ws.getCell("C40").value = d.tracker;
-  ws.getCell("C41").value = d.gtechniq;
-  ws.getCell("C46").value = d.gap;
-  ws.getCell("C47").value = d.firstRegFee;
-  ws.getCell("C48").value = lookupVed(d.emissions||240).rate;
-  const pxClears = ["K24","L24","M24","K30","K31","K32","K33","K34","K35","K36","K37","K38","L25","L26","L27","L28","L29","L30","L31","L32","L34","L35","L38","L39","L40","L41"];
-  pxClears.forEach(c => { ws.getCell(c).value = null; });
-  ws.getCell("L44").value = d.deposits;
-  ws.getCell("L46").value = d.financeAmount;
-  ws.getCell("L54").value = 0;
-}
-
-function populateUsed(wb, d) {
-  const ws = wb.getWorksheet("Approved Cars");
-  const isCompany = d.soldTo === "Company";
-  ws.getCell("L9").value = null;
-  if (onFinance) {
-    ws.getCell("L10").value = PFS.contactName||null;
-    ws.getCell("L11").value = PFS.company;
-    ws.getCell("L12").value = PFS.address;
-    ws.getCell("L14").value = PFS.postCode;
-    ws.getCell("N14").value = PFS.tel||null;
-  } else if (isCompany) {
-    // Company sale: Contact Name (L10) stays blank, Company Name in L11
-    ws.getCell("L10").value = null;
-    ws.getCell("L11").value = d.companyName || d.name || null;
-    ws.getCell("L12").value = d.address||null;
-    ws.getCell("L14").value = d.postCode||null;
-    ws.getCell("N14").value = d.tel||null;
-  } else {
-    // Individual: Contact Name in L10, Company blank
-    ws.getCell("L10").value = d.name||null;
-    ws.getCell("L11").value = null;
-    ws.getCell("L12").value = d.address||null;
-    ws.getCell("L14").value = d.postCode||null;
-    ws.getCell("N14").value = d.tel||null;
-  }
-  // Deliver To section - same rule: company in L17, contact in L16
-  if (isCompany) {
-    ws.getCell("L16").value = d.name||null; // optional contact person
-    ws.getCell("L17").value = d.companyName || null;
-  } else {
-    ws.getCell("L16").value = d.name||null;
-    ws.getCell("L17").value = null;
-  }
-  ws.getCell("L18").value = d.address||null;
-  ws.getCell("L19").value = d.postCode||null;
-  ws.getCell("N19").value = d.tel||null;
-  ws.getCell("E11").value = d.soldTo||"Individual";
-  ws.getCell("E13").value = d.regNo||null;
-  ws.getCell("E14").value = d.mileage;
-  ws.getCell("E15").value = d.carModel||null;
-  ws.getCell("G22").value = d.vatQualifying||"No";
-  ws.getCell("B17").value = d.deliveryDay; ws.getCell("C17").value = d.deliveryMonth; ws.getCell("D17").value = d.deliveryYear;
-  ws.getCell("B18").value = d.invoiceDay; ws.getCell("C18").value = d.invoiceMonth; ws.getCell("D18").value = d.invoiceYear;
-  ws.getCell("C21").value = d.usedCarPrice;
-  if (onFinance) {
-    ws.getCell("B22").value = "None";
-    ws.getCell("B23").value = "None";
-    ws.getCell("L48").value = d.warrantyPrice;
-    ws.getCell("L49").value = d.assistancePrice;
-  } else {
-    ws.getCell("B22").value = d.warrantyTerm||"None";
-    ws.getCell("B23").value = d.assistanceTerm||"None";
-    ws.getCell("L48").value = 0;
-    ws.getCell("L49").value = 0;
-  }
-  ws.getCell("N48").value = 0;
-  ws.getCell("N49").value = 0;
-  ws.getCell("C30").value = 0;
-  ws.getCell("C43").value = d.gtechniq;
-  ws.getCell("C49").value = 0;
-  // Dealer Fit Options - 7 rows starting row 34. Write description (A col), price (C col), VAT rate (E col).
-  for (let r = 34; r <= 40; r++) {
-    const accIdx = r - 34;
-    const acc = (d.accessories && d.accessories[accIdx]) || null;
-    if (acc && acc.price > 0) {
-      ws.getCell(`A${r}`).value = acc.desc || null;
-      ws.getCell(`C${r}`).value = acc.price;
-      ws.getCell(`E${r}`).value = (acc.vatRate != null ? acc.vatRate : 0.2);
-    } else {
-      ws.getCell(`C${r}`).value = 0;
-    }
-  }
-  const pxClears = ["L22","L23","L24","L25","L26","L27","L28","L32","L33","L36","L38","L39"];
-  pxClears.forEach(c => { ws.getCell(c).value = null; });
-  ws.getCell("L41").value = {formula: "C52"};
-  ws.getCell("L42").value = d.deposits;
-  ws.getCell("L44").value = d.financeAmount;
-}
-
-// ===== EVENT WIRING =====
-const dz = document.getElementById("dropzone");
-const fi = document.getElementById("fileInput");
-
-dz.addEventListener("click", (e) => {
-  // Only trigger file picker if the click was on the dropzone itself, not on a child input
-  if (e.target.id !== "fileInput") fi.click();
-});
-dz.addEventListener("dragover", e => { e.preventDefault(); dz.classList.add("dragover"); });
-dz.addEventListener("dragleave", () => dz.classList.remove("dragover"));
-dz.addEventListener("drop", e => {
-  e.preventDefault();
-  dz.classList.remove("dragover");
-  handleFiles(Array.from(e.dataTransfer.files));
-});
-fi.addEventListener("change", () => {
-  // Snapshot the FileList before clearing the input - otherwise async reads can lose files
-  const picked = Array.from(fi.files);
-  fi.value = "";
-  handleFiles(picked);
-});
-
-async function handleFiles(fileList) {
-  if (typeof window.pdfjsLib === "undefined") {
-    showStatus("PDF library not loaded - check network or use offline build.", "err");
-    return;
-  }
-  for (const f of fileList) {
-    if (!/\.pdf$/i.test(f.name)) continue;
-    showStatus(`Reading ${f.name}...`, "warn");
-    try {
-      const text = await extractText(f);
-      const type = classify(text);
-      let data = {};
-      if (type === "new-order") data = extractNewOrder(text);
-      else if (type === "build") data = extractBuildSheet(text);
-      else if (type === "used-order") data = extractUsedOrder(text);
-      files.push({name: f.name, file: f, text, type, data});
-    } catch (err) {
-      console.error("Failed to read", f.name, err);
-      showStatus(`Failed to read ${f.name}: ${err.message}`, "err");
-    }
-  }
-  hideStatus();
-  renderFiles();
-  classifyAndPrepare();
-}
-
-document.getElementById("generateBtn").addEventListener("click", () => {
-  generate().catch(err => { console.error(err); showStatus("Error: " + err.message, "err"); });
-});
-
-document.getElementById("resetBtn").addEventListener("click", () => {
-  files = []; mode = null; reviewData = {}; onFinance = false;
-  renderFiles();
-  document.getElementById("reviewPanel").classList.add("hidden");
-  hideStatus();
-  fi.value = "";
-});
-</script>
-</body>
-</html>
+function updateVedDisplay()
