@@ -244,19 +244,15 @@ function extractUsedOrder(text) {
 
 function extractHpi(text) {
   const d = {};
-  // VIN extraction - the label and value can be on different lines, separated by other content.
-  // Strategy: find the label, then scan up to 300 chars ahead for a plausible VIN string.
+  // VIN extraction - simply find any 17-char alphanumeric token in the document.
+  // Modern VINs are always 17 characters using A-Z minus I, O, Q, plus 0-9.
+  // HPI reports rarely have other 17-char alphanumeric tokens, so this is robust.
   function _findVin() {
-    const labelIdx = text.search(/VIN\/Chassis Number|VIN\s*(?:No\.?|Number)|Chassis(?:\s+Number)?/i);
-    if (labelIdx >= 0) {
-      const window = text.slice(labelIdx, labelIdx + 400);
-      // Look for first 11-17 char alphanumeric token (typical VIN), excluding the label itself
-      const m = window.match(/\b([A-HJ-NPR-Z0-9]{11,17})\b/);
-      if (m) return m[1];
-    }
-    // Fallback: any 17-char alphanumeric in the whole document (modern VINs are exactly 17)
-    const fall = text.match(/\b([A-HJ-NPR-Z0-9]{17})\b/);
-    return fall ? fall[1] : "";
+    // Find all alphanumeric tokens 11-17 chars long. Prefer the first 17-char match (standard VIN length).
+    const all = text.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/g) || [];
+    const len17 = all.find(t => t.length === 17);
+    if (len17) return len17;
+    return all[0] || "";
   }
   d.vin = _findVin();
   d.regNo = findMatch(text, /\b([A-Z]{2}\d{2}\s?[A-Z]{3})\b/);
