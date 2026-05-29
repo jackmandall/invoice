@@ -1,8 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-GB"><head><meta charset="UTF-8"><title>Invoice Request Generator</title>
-<style>:root{--bg:#0b0d10;--panel:#14181d;--panel2:#1b2026;--border:#2a3038;--accent:#d5001c;--accent2:#ffb733;--text:#eef1f5;--muted:#8a93a0;--ok:#46d160;--warn:#ffb733;--err:#ff5566}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;line-height:1.45}header{padding:18px 28px;background:linear-gradient(90deg,#14181d,#1b2026);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px}header h1{margin:0;font-size:18px;font-weight:600}header .badge{padding:4px 10px;background:var(--accent);border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.8px}main{max-width:1100px;margin:0 auto;padding:28px}.panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:22px;margin-bottom:18px}.dropzone{border:2px dashed var(--border);border-radius:10px;padding:38px;text-align:center;cursor:pointer;background:var(--panel2);transition:all .18s;display:block}.dropzone:hover,.dropzone.dragover{border-color:var(--accent2);background:#1f2530}.dropzone h2{margin:0 0 8px;font-size:18px}.dropzone p{margin:0;color:var(--muted);font-size:13px}.dropzone input{display:none}.files{margin-top:18px;display:grid;gap:8px}.file-chip{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:10px 14px;background:var(--panel2);border:1px solid var(--border);border-radius:6px;font-size:13px}.file-chip .name{font-weight:500}.file-chip .type{font-size:11px;padding:3px 8px;border-radius:4px;font-weight:600;letter-spacing:.4px;white-space:nowrap}.type.new-order{background:#233a5a;color:#8ec8ff}.type.build{background:#2a4d2a;color:#b8e9b8}.type.used-order{background:#5a3a23;color:#ffc18e}.type.hpi{background:#3a2a5a;color:#c8b8ff}.type.unknown,.type.unknown-order{background:#5a2323;color:#ff9d9d}.file-chip button{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:4px;cursor:pointer;padding:4px 8px;font-size:11px}.file-chip select.type-override{background:var(--panel2);color:var(--text);border:1px solid var(--border);border-radius:4px;padding:4px 8px;font-size:11px}h3{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin:0 0 14px;font-weight:600}.grid{display:grid;gap:12px}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr 1fr}label{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin-bottom:4px}input[type=text],input[type=number],input[type=date],select,textarea{width:100%;background:var(--panel2);border:1px solid var(--border);color:var(--text);padding:9px 12px;border-radius:4px;font-size:13px;font-family:inherit}input:focus,select:focus,textarea:focus{outline:none;border-color:var(--accent2)}.row-checkbox{display:flex;align-items:center;gap:8px;padding:10px 0}.row-checkbox input{width:18px;height:18px}.row-checkbox label{margin:0;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)}.actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:18px}button.primary{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:11px 22px;font-weight:600;font-size:13px;letter-spacing:.5px;cursor:pointer}button.primary:hover:not(:disabled){background:#b1001a}button.primary:disabled{background:#3a3a3a;cursor:not-allowed;color:#888}button.secondary{background:transparent;color:var(--text);border:1px solid var(--border);border-radius:4px;padding:11px 18px;font-weight:500;font-size:13px;cursor:pointer}.status{padding:10px 14px;background:var(--panel2);border-radius:4px;font-size:13px}.status.ok{border-left:3px solid var(--ok)}.status.warn{border-left:3px solid var(--warn)}.status.err{border-left:3px solid var(--err)}.hidden{display:none!important}.tabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px}.tab{padding:10px 18px;cursor:pointer;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}.tab.active{color:var(--text);border-bottom-color:var(--accent)}.section-title{font-size:12px;text-transform:uppercase;letter-spacing:1px;color:var(--accent2);margin:18px 0 10px;padding-bottom:6px;border-bottom:1px solid var(--border);font-weight:600}.totals{background:var(--panel2);border:1px solid var(--border);border-radius:6px;padding:14px 18px;font-size:13px}.totals .row{display:flex;justify-content:space-between;padding:4px 0}.totals .row strong{color:var(--accent2)}.totals .row.grand{border-top:1px solid var(--border);margin-top:6px;padding-top:10px;font-weight:700;font-size:15px}.instructions{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:24px 28px;margin-bottom:18px;font-size:13px;line-height:1.55}.instructions h2{margin:0 0 6px;font-size:16px;color:var(--accent2);font-weight:600;letter-spacing:.3px}.instructions h4{margin:18px 0 8px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);font-weight:600}.instructions p{margin:0 0 8px;color:var(--text)}.instructions ul{margin:6px 0 14px;padding-left:22px;color:var(--text)}.instructions li{margin-bottom:4px}.instructions strong{color:var(--accent2)}.instructions .tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:10px;font-weight:600;letter-spacing:.4px;margin-right:4px;vertical-align:1px}.tag.new{background:#233a5a;color:#8ec8ff}.tag.build{background:#2a4d2a;color:#b8e9b8}.tag.used{background:#5a3a23;color:#ffc18e}.tag.hpi{background:#3a2a5a;color:#c8b8ff}.instructions .tip{background:rgba(70,209,96,.08);border-left:3px solid var(--ok);padding:10px 14px;margin:10px 0;border-radius:0 4px 4px 0;font-size:12px}.instructions code{background:var(--panel2);padding:1px 6px;border-radius:3px;font-size:12px;color:var(--accent2)}</style>
-</head><body><header><h1>Invoice Request Generator</h1><span class="badge">PORSCHE GUILDFORD</span></header>
-<main><div class="panel"><h3>Step 1 - Drop order forms here</h3><div class="dropzone" id="dropzone"><h2>Drop PDF files here, or click to choose</h2><input type="file" id="fileInput" multiple accept="application/pdf,.pdf"></div><div class="files" id="filesList"></div><div id="missingDocNotice" class="hidden" style="margin-top:14px;padding:14px 18px;background:rgba(255,183,51,.12);border:1px solid var(--warn);border-radius:6px;color:var(--warn);font-size:13px"></div></div><div class="instructions"><h2>How to use this tool</h2><p>Drop one or more PDFs onto the box above. The tool reads each PDF, decides which type it is, then opens a review form pre-filled with the data it found. You check the values, fill in anything missing, then click <strong>Generate Invoice Request</strong> to download a populated Excel file.</p><h4>Which PDFs to drop</h4><p><span class="tag new">NEW ORDER</span> Drop <strong>both</strong> the New Vehicle Order Form <strong>and</strong> the matching Build Sheet Retail. Either one alone gives you only half the data.</p><p><span class="tag used">USED ORDER</span> Drop the Used Vehicle Order Form (single PDF, has &quot;Order ID&quot; and &quot;New/Used: Used&quot;).</p><p><span class="tag hpi">HPI</span> Optional. Drop one or two HPI reports for part-exchange vehicles. Auto-fills the Part Exchange section with reg, VIN, make/model, colour, owners and engine number. <strong>Must be a text-based PDF</strong> - see the tip below.</p><h4>What you must type in yourself</h4><ul><li><strong>Delivery Date and Invoice Date</strong> - both required for new AND used cars. The used order form&apos;s Estimated Handover is often speculative, so even when it pre-fills the dates, please verify and overwrite them with the actual handover/invoice dates before generating.</li><li><strong>CO2 emissions (g/km)</strong> for new cars - the tool defaults to 0 only for confirmed electrics (Taycan, Macan Electric, Cayenne Electric). For petrol or hybrid cars, look up the WLTP figure on the build sheet. The tool then auto-calculates the First Year VED from the gov.uk table.</li><li><strong>Finance Amount</strong> when the &quot;On Finance?&quot; tick box is on.</li><li><strong>Part Exchange financials</strong>: Purchase Price (what you paid the customer), SIV (CAP/Glass valuation) and Finance Settlement (only if outstanding finance was flagged on HPI - tick the box to reveal the field).</li></ul><h4>How the calculation flows</h4><p>Live in the form: New car price + factory options - dealer discount + accessories + VAT + VED + reg fee, then less deposit, less PX customer equity, less finance amount = balance from customer. The Excel mirrors the same maths and reconciles to the order form total.</p><h4>Other things the tool handles</h4><ul><li><strong>Sold to Company</strong> - if the order form has a company name, the Invoice To section uses the company in cell L12 and leaves Contact Name blank. Switch between Individual and Company in the form to override.</li><li><strong>On Finance?</strong> - the Invoice To section is overridden with Porsche Financial Services (Brunswick Court, Milton Keynes). Deliver To stays as the customer.</li><li><strong>Used car warranty &amp; assistance on finance</strong> - if On Finance is ticked, warranty (911 - 24 Months) and assistance (Porsche Assist - 24 months) move to the supplementary Dealer Options block.</li><li><strong>Accessories</strong> - lines from the order form&apos;s Tequipment - Taxable or Dealer Fitted Options - Taxable section auto-fill the seven Dealer Fit Options rows on the spreadsheet.</li></ul><div class="tip"><strong>Tip - HPI PDFs:</strong> use <code>Ctrl+P &rarr; Save as PDF</code> in Chrome (not Microsoft &quot;Print to PDF&quot;) when exporting the HPI report. Microsoft Print to PDF saves as images and the tool can&apos;t read the text. If your HPI portal has a built-in &quot;Download PDF&quot; or &quot;Save Certificate&quot; button, that&apos;s the cleanest source of all.</div><h4>If something goes wrong</h4><ul><li>PDF labelled <em>Unrecognised</em> - use the override dropdown on the file chip to set it manually.</li><li>Field missing or wrong - everything on the review form is editable before you click Generate.</li><li>Generate button greyed out - hover over it for a tooltip explaining what is missing (usually CO2 emissions, finance amount, or PX details).</li></ul></div><div class="panel hidden" id="reviewPanel"><div class="tabs" id="modeTabs"></div><div id="reviewForm"></div><div class="actions"><button class="primary" id="generateBtn" disabled>Generate Invoice Request</button><button class="secondary" id="resetBtn">Reset</button><span id="status" class="status hidden"></span></div></div></main>
+<style>@font-face{font-family:'Porsche Next';font-weight:400;font-style:normal;font-display:swap;src:url('https://cdn.ui.porsche.com/porsche-design-system/fonts/porsche-next-latin-regular.b8f1c20.woff2') format('woff2')}@font-face{font-family:'Porsche Next';font-weight:600;font-style:normal;font-display:swap;src:url('https://cdn.ui.porsche.com/porsche-design-system/fonts/porsche-next-latin-semi-bold.b5f6fca.woff2') format('woff2')}@font-face{font-family:'Porsche Next';font-weight:700;font-style:normal;font-display:swap;src:url('https://cdn.ui.porsche.com/porsche-design-system/fonts/porsche-next-latin-bold.0fbdc6d.woff2') format('woff2')}:root{color-scheme:light;--p-primary:light-dark(#010205,#FBFBFD);--p-bg-base:light-dark(#FFF,hsl(225 66.7% 1.2%));--p-bg-surface:light-dark(#EEEFF2,hsl(240 2% 10%));--p-bg-shading:light-dark(rgba(1,2,5,.4),rgba(1,2,5,.5));--p-contrast-low:light-dark(rgba(36,36,40,.5),rgba(245,246,250,.45));--p-contrast-medium:light-dark(#6B6D70,rgba(245,246,250,.56));--p-contrast-high:light-dark(#535457,rgba(245,246,250,.67));--p-notify-success:light-dark(#1A7E10,#21D67D);--p-notify-success-soft:light-dark(#D6E8D4,hsla(157,84.9%,41.6%,.18));--p-notify-warning:light-dark(#AC4302,#F58E2B);--p-notify-warning-soft:light-dark(#FDF4D6,hsla(28,90.2%,56.1%,.18));--p-notify-error:light-dark(#BA1722,#FA3D43);--p-notify-error-soft:light-dark(#F3D5D7,hsla(0,96.9%,62%,.18));--p-notify-info:light-dark(#1A44EA,#178EFF);--p-notify-info-soft:light-dark(#D6DDFB,hsla(210,100%,54.5%,.18));--p-state-hover:light-dark(rgba(148,149,152,.18),rgba(245,246,250,.1));--p-state-active:light-dark(rgba(148,149,152,.20),rgba(245,246,250,.15));--p-state-focus:#1A44EA;--p-state-disabled:light-dark(#949598,#666);--p-brand:#D5001C;--p-radius-s:4px;--p-radius-m:8px;--p-radius-l:12px;--p-bw:2px;--p-sp-xs:4px;--p-sp-s:8px;--p-sp-m:16px;--p-sp-l:32px;--p-sp-xl:48px;--p-sp-fluid-m:clamp(16px,1.25vw + 12px,36px);--p-dur-short:.25s;--p-dur-mod:.4s;--p-dur-long:.6s;--p-ease-base:cubic-bezier(.25,.1,.25,1);--p-ease-in:cubic-bezier(0,0,.2,1);--p-ease-out:cubic-bezier(.4,0,.5,1);--p-shadow-low:0 3px 8px rgba(1,2,5,.08);--p-shadow-med:0 4px 16px rgba(1,2,5,.10);--bg:var(--p-bg-base);--panel:var(--p-bg-base);--panel2:var(--p-bg-surface);--border:var(--p-contrast-low);--border-strong:var(--p-primary);--accent:var(--p-brand);--accent2:var(--p-brand);--text:var(--p-primary);--muted:var(--p-contrast-medium);--ok:var(--p-notify-success);--warn:var(--p-notify-warning);--err:var(--p-notify-error);}*{box-sizing:border-box}body{margin:0;background:var(--p-bg-base);color:var(--p-primary);font-family:'Porsche Next','Inter','Segoe UI',system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif;font-weight:400;line-height:1.5;-webkit-font-smoothing:antialiased}header{padding:var(--p-sp-m) var(--p-sp-fluid-m);background:var(--p-bg-base);border-bottom:var(--p-bw) solid var(--p-primary);display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:var(--p-sp-m);min-height:64px;box-sizing:border-box}header h1{margin:0;font-size:22px;font-weight:600;letter-spacing:-.2px;color:var(--p-primary);justify-self:start}header .brand-mark{display:flex;justify-content:center;justify-self:center;color:var(--p-primary)}header .brand-mark svg{display:block;width:auto;height:clamp(0.63rem,0.42vw + 0.5rem,1rem);max-width:100%}header .header-spacer{justify-self:end}main{max-width:1200px;margin:0 auto;padding:var(--p-sp-l) var(--p-sp-fluid-m)}.panel{background:var(--p-bg-base);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);padding:var(--p-sp-l);margin-bottom:var(--p-sp-l);box-shadow:var(--p-shadow-low)}.dropzone{border:var(--p-bw) dashed var(--p-primary);border-radius:var(--p-radius-l);padding:var(--p-sp-xl);text-align:center;cursor:pointer;background:var(--p-bg-base);display:block;transition:background var(--p-dur-short) var(--p-ease-base),border-color var(--p-dur-short) var(--p-ease-base)}.dropzone:hover,.dropzone.dragover{background:var(--p-state-hover)}.dropzone h2{margin:0 0 var(--p-sp-s);font-size:20px;font-weight:600;letter-spacing:-.2px;color:var(--p-primary)}.dropzone p{margin:0;color:var(--p-contrast-medium);font-size:14px}.dropzone input{display:none}.files{margin-top:var(--p-sp-l);display:grid;gap:var(--p-sp-s)}.file-chip{display:grid;grid-template-columns:1fr auto auto auto;gap:var(--p-sp-m);align-items:center;padding:var(--p-sp-m);background:var(--p-bg-surface);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);font-size:14px;transition:background var(--p-dur-short) var(--p-ease-base)}.file-chip:hover{background:#E5E6E9}.file-chip .name{font-weight:500;color:var(--p-primary)}.file-chip .type{font-size:13px;padding:0 14px;height:36px;display:inline-flex;align-items:center;border-radius:var(--p-radius-l);font-weight:500;letter-spacing:0;white-space:nowrap;background:transparent;border:1px solid currentColor;line-height:1.3;box-sizing:border-box}.type.new-order{color:#2762EC}.type.build{color:#197E10}.type.used-order{color:#9C7600}.type.hpi{color:#7B2CBF}.type.unknown,.type.unknown-order{color:var(--p-notify-error)}.file-chip button{background:transparent;border:1px solid var(--p-contrast-low);color:var(--p-contrast-medium);border-radius:var(--p-radius-l);cursor:pointer;padding:0 14px;height:36px;font-size:13px;font-weight:500;transition:all var(--p-dur-short) var(--p-ease-base);font-family:inherit}.file-chip button:hover{border-color:var(--p-brand);color:var(--p-brand)}.file-chip select.type-override{height:36px!important;line-height:34px;background-color:var(--p-bg-base);background-repeat:no-repeat;color:var(--p-primary);border:1px solid var(--p-contrast-medium);border-radius:var(--p-radius-l);padding:0 32px 0 var(--p-sp-m)!important;font-size:13px;font-family:inherit;background-position:right 12px center;background-size:11px 8px;transition:border-color var(--p-dur-short) var(--p-ease-base);width:auto;display:inline-block;cursor:pointer}.file-chip select.type-override:hover{border-color:var(--p-primary)}h3{font-size:14px;letter-spacing:-.1px;color:var(--p-primary);margin:0 0 var(--p-sp-m);font-weight:600}.grid{display:grid;gap:var(--p-sp-m)}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:1fr 1fr 1fr}label{display:block;font-size:13px;color:var(--p-contrast-medium);margin-bottom:var(--p-sp-xs);font-weight:500}input[type=text],input[type=number],input[type=date],select,textarea{width:100%;height:44px;background:var(--p-bg-base);border:1px solid var(--p-contrast-medium);color:var(--p-primary);padding:0 var(--p-sp-m);border-radius:var(--p-radius-l);font-size:14px;line-height:42px;font-family:inherit;transition:border-color var(--p-dur-short) var(--p-ease-base),box-shadow var(--p-dur-short) var(--p-ease-base);box-shadow:none;vertical-align:middle;display:block}textarea{height:auto;min-height:88px;padding:var(--p-sp-s) var(--p-sp-m);line-height:1.5;border-radius:var(--p-radius-l)}select{-webkit-appearance:none;-moz-appearance:none;appearance:none;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23010205' stroke-width='1.5'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 16px center;background-size:12px 8px;padding-right:40px;cursor:pointer}input:hover,select:hover,textarea:hover{border-color:var(--p-contrast-medium)}input:focus-visible,select:focus-visible,textarea:focus-visible{outline:4px solid var(--p-state-focus);outline-offset:2px;border-color:var(--p-state-focus)}input:focus:not(:focus-visible),select:focus:not(:focus-visible),textarea:focus:not(:focus-visible){outline:none;border-color:var(--p-state-focus)}.required-empty{border-color:var(--p-notify-error)!important;background:var(--p-notify-error-soft)!important}.required-empty:focus{box-shadow:0 0 0 1px var(--p-notify-error)!important;border-color:var(--p-notify-error)!important}.row-checkbox{display:flex;align-items:center;gap:var(--p-sp-s);padding:var(--p-sp-s) 0}.row-checkbox input[type=checkbox]{appearance:none;-webkit-appearance:none;width:24px;height:24px;border:1px solid var(--p-contrast-medium);border-radius:6px;background:var(--p-bg-base);cursor:pointer;display:inline-grid;place-items:center;position:relative;margin:0;flex-shrink:0;transition:background var(--p-dur-short) var(--p-ease-base),border-color var(--p-dur-short) var(--p-ease-base);vertical-align:middle;padding:0;font:inherit;line-height:1;box-sizing:border-box;height:24px}.row-checkbox input[type=checkbox]:hover{border-color:var(--p-primary)}.row-checkbox input[type=checkbox]:checked{background:var(--p-primary);border-color:var(--p-primary)}.row-checkbox input[type=checkbox]:checked::before{content:'';width:16px;height:16px;background-color:#fff;-webkit-mask:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27m20.22 7.47-1.47-1.42-9.26 9.02-4.24-4.15-1.47 1.42 5.71 5.6Z%27/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Cpath d=%27m20.22 7.47-1.47-1.42-9.26 9.02-4.24-4.15-1.47 1.42 5.71 5.6Z%27/%3E%3C/svg%3E") center/contain no-repeat}.row-checkbox input[type=checkbox]:disabled{opacity:.55;cursor:not-allowed}.row-checkbox label{margin:0;text-transform:none;letter-spacing:0;font-size:14px;color:var(--p-primary);font-weight:400;cursor:pointer}.actions{display:flex;gap:var(--p-sp-s);align-items:center;flex-wrap:wrap;margin-top:var(--p-sp-l);padding-top:var(--p-sp-m);border-top:1px solid var(--p-contrast-low)}button.primary{background:var(--p-primary);color:var(--p-bg-base);border:none;border-radius:var(--p-radius-l);padding:var(--p-sp-m) var(--p-sp-l);font-weight:600;font-size:14px;letter-spacing:.4px;cursor:pointer;font-family:inherit;transition:background var(--p-dur-short) var(--p-ease-base),transform var(--p-dur-short) var(--p-ease-base)}button.primary:hover:not(:disabled){background:var(--p-contrast-high)}button.primary:active:not(:disabled){background:var(--p-contrast-medium)}button.primary:disabled{background:var(--p-state-disabled);cursor:not-allowed;color:#fff}button.secondary{background:var(--p-bg-base);color:var(--p-primary);border:1px solid var(--p-primary);border-radius:var(--p-radius-l);padding:var(--p-sp-m) var(--p-sp-l);font-weight:600;font-size:14px;letter-spacing:.4px;cursor:pointer;font-family:inherit;transition:background var(--p-dur-short) var(--p-ease-base)}button.secondary:hover{background:var(--p-state-hover)}.status{padding:var(--p-sp-s) var(--p-sp-m);background:var(--p-bg-surface);border-radius:var(--p-radius-l);font-size:14px;border:1px solid var(--p-contrast-low)}.status.success{border-left:3px solid var(--p-notify-success);background:var(--p-notify-success-soft)}.status.warning{border-left:3px solid var(--p-notify-warning);background:var(--p-notify-warning-soft)}.status.error{border-left:3px solid var(--p-notify-error);background:var(--p-notify-error-soft)}.notice{display:grid;grid-template-columns:24px 1fr;gap:var(--p-sp-m);padding:var(--p-sp-m) var(--p-sp-l);border-radius:16px;font-size:14px;line-height:1.5;align-items:start;color:var(--p-primary);margin:0;width:100%;box-sizing:border-box}.notice .notice-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0}.notice .notice-icon svg{width:24px;height:24px;display:block;fill:currentColor}.notice .notice-title{font-weight:600;margin:0 0 2px;font-size:15px;color:var(--p-primary);letter-spacing:-.1px}.notice .notice-body{margin:0;color:var(--p-primary)}.notice .notice-body strong{font-weight:600;color:var(--p-primary)}.notice.success{background:var(--p-notify-success-soft)}.notice.success .notice-icon{color:var(--p-notify-success)}.notice.warning{background:var(--p-notify-warning-soft)}.notice.warning .notice-icon{color:var(--p-notify-warning)}.notice.error{background:var(--p-notify-error-soft)}.notice.error .notice-icon{color:var(--p-notify-error)}.notice.info{background:var(--p-notify-info-soft)}.notice.info .notice-icon{color:var(--p-notify-info)}.modal-backdrop{position:fixed;inset:0;background:rgba(1,2,5,.4);-webkit-backdrop-filter:blur(32px);backdrop-filter:blur(32px);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px;animation:modalFadeIn var(--p-dur-short) var(--p-ease-base)}.modal-panel{display:grid;grid-template-columns:24px minmax(0,1fr) auto;gap:var(--p-sp-m);padding:calc(var(--p-sp-s) + var(--p-sp-m));border-radius:16px;max-width:560px;width:100%;box-shadow:var(--p-shadow-med);max-height:90vh;overflow-y:auto;align-items:start}.modal-panel.info{background:var(--p-notify-info-soft)}.modal-panel.info .notice-icon{color:var(--p-notify-info)}.modal-panel.success{background:var(--p-notify-success-soft)}.modal-panel.success .notice-icon{color:var(--p-notify-success)}.modal-panel.warning{background:var(--p-notify-warning-soft)}.modal-panel.warning .notice-icon{color:var(--p-notify-warning)}.modal-panel.error{background:var(--p-notify-error-soft)}.modal-panel.error .notice-icon{color:var(--p-notify-error)}.modal-panel .notice-icon{width:24px;height:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0;grid-row:1/span 2}.modal-panel .notice-icon svg{width:24px;height:24px;display:block;fill:currentColor}.modal-panel .modal-content{grid-column:2;color:var(--p-primary);font-size:14px;line-height:1.5}.modal-panel .modal-content .notice-title{font-weight:600;margin:0 0 var(--p-sp-xs);font-size:15px;color:var(--p-primary);letter-spacing:-.1px}.modal-panel .modal-content p{margin:0 0 var(--p-sp-s);color:var(--p-primary)}.modal-panel .modal-content p:last-child{margin-bottom:0}.modal-panel .modal-content h3{margin:var(--p-sp-m) 0 var(--p-sp-xs);font-size:14px;font-weight:600;color:var(--p-primary);letter-spacing:-.1px}.modal-panel .modal-content ul{margin:0 0 var(--p-sp-s);padding-left:22px;line-height:1.6}.modal-panel .modal-content li{margin-bottom:var(--p-sp-xs)}.modal-panel .modal-content code{background:rgba(1,2,5,.08);padding:1px 6px;border-radius:var(--p-radius-s);font-size:13px;color:var(--p-primary);font-family:'Consolas','Monaco',monospace}.modal-panel .modal-dismiss{background:transparent;border:none;color:var(--p-primary);cursor:pointer;padding:0;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background var(--p-dur-short) var(--p-ease-base);grid-column:3;font-family:inherit}.modal-panel .modal-dismiss:hover{background:rgba(1,2,5,.08)}.modal-panel .modal-dismiss svg{width:18px;height:18px;fill:currentColor;display:block}@keyframes modalFadeIn{from{opacity:0}to{opacity:1}}.hidden{display:none!important}.tabs{display:flex;gap:0;border-bottom:1px solid var(--p-contrast-low);margin-bottom:var(--p-sp-l)}.tab{padding:var(--p-sp-m) var(--p-sp-l);cursor:pointer;font-size:14px;font-weight:600;letter-spacing:.4px;color:var(--p-contrast-medium);border-bottom:2px solid transparent;margin-bottom:-1px;transition:color var(--p-dur-short) var(--p-ease-base),border-bottom-color var(--p-dur-short) var(--p-ease-base)}.tab.active{color:var(--p-primary);border-bottom-color:var(--p-brand)}.tab:hover:not(.active){color:var(--p-primary)}.section-title{font-size:16px;letter-spacing:-.2px;color:var(--p-primary);margin:var(--p-sp-l) 0 var(--p-sp-m);padding-bottom:var(--p-sp-s);border-bottom:1px solid var(--p-contrast-low);font-weight:600}.totals{background:var(--p-bg-surface);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);padding:var(--p-sp-m) var(--p-sp-l);font-size:14px}.totals .row{display:flex;justify-content:space-between;padding:var(--p-sp-xs) 0}.totals .row strong{color:var(--p-primary);font-weight:600}.totals .row.grand{border-top:var(--p-bw) solid var(--p-primary);margin-top:var(--p-sp-s);padding-top:var(--p-sp-m);font-weight:700;font-size:16px}.instructions{background:var(--p-bg-base);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);padding:0;margin-bottom:var(--p-sp-l);font-size:14px;line-height:1.6;color:var(--p-primary);box-shadow:var(--p-shadow-low);overflow:hidden}.instructions>summary{padding:var(--p-sp-m) var(--p-sp-l);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:var(--p-sp-m);font-size:20px;font-weight:600;letter-spacing:-.2px;color:var(--p-primary);transition:background var(--p-dur-short) var(--p-ease-base)}.instructions>summary::-webkit-details-marker{display:none}.instructions>summary::marker{display:none}.instructions>summary .accordion-marker{width:20px;height:20px;flex-shrink:0;color:var(--p-primary);transition:transform var(--p-dur-short) var(--p-ease-base)}.instructions[open]>summary .accordion-marker{transform:rotate(180deg)}.instructions>.instructions-body{padding:0 var(--p-sp-l) var(--p-sp-l)}.instructions h2{margin:0 0 var(--p-sp-xs);font-size:20px;color:var(--p-primary);font-weight:600;letter-spacing:-.2px}.instructions h4{margin:var(--p-sp-l) 0 var(--p-sp-s);font-size:15px;letter-spacing:-.1px;color:var(--p-primary);font-weight:600}.instructions p{margin:0 0 var(--p-sp-s)}.instructions ul{margin:var(--p-sp-s) 0 var(--p-sp-m);padding-left:24px}.instructions li{margin-bottom:var(--p-sp-xs)}.instructions strong{color:var(--p-primary);font-weight:600}.instructions .tag{display:inline-block;padding:2px 10px;border-radius:var(--p-radius-l);font-size:12px;font-weight:500;letter-spacing:0;margin-right:6px;vertical-align:1px;background:transparent;border:1px solid currentColor;line-height:1.4}.tag.new{color:#2762EC}.tag.build{color:#197E10}.tag.used{color:#9C7600}.tag.hpi{color:#7B2CBF}.instructions .tip{position:relative;background:var(--p-notify-info-soft);padding:var(--p-sp-m) var(--p-sp-m) var(--p-sp-m) 52px;margin:var(--p-sp-m) 0;border-radius:16px;font-size:13px;line-height:1.5}.instructions .tip::before{content:"";position:absolute;left:var(--p-sp-m);top:var(--p-sp-m);width:24px;height:24px;background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%279%27 fill=%27%231A44EA%27/%3E%3Crect x=%2711.25%27 y=%277.5%27 width=%271.5%27 height=%271.5%27 fill=%27%23ffffff%27/%3E%3Crect x=%2711.25%27 y=%2710%27 width=%271.5%27 height=%276%27 fill=%27%23ffffff%27/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:center;background-size:24px 24px}.instructions code{background:var(--p-bg-surface);padding:2px 7px;border-radius:var(--p-radius-s);font-size:13px;color:var(--p-primary);font-family:'Consolas','Monaco',monospace}.version-footer{text-align:center;padding:var(--p-sp-l) var(--p-sp-m);font-size:12px;color:var(--p-contrast-medium);letter-spacing:.4px;border-top:1px solid var(--p-contrast-low);margin-top:var(--p-sp-l)}.version-footer strong{color:var(--p-primary);font-weight:600;letter-spacing:1px}*:focus{outline:none}button:focus-visible,.dropzone:focus-visible,details>summary:focus-visible,a:focus-visible,[type=checkbox]:focus-visible,input.switch:focus-visible+.switch-track,select.type-override:focus-visible,.modal-dismiss:focus-visible{outline:4px solid var(--p-state-focus);outline-offset:2px;border-radius:var(--p-radius-s)}.file-chip button:focus-visible{outline-offset:1px}.switch-wrap{display:flex;align-items:center;gap:12px;cursor:pointer;padding:8px 0;user-select:none}.switch-wrap input[type=checkbox]{position:absolute;opacity:0;width:0;height:0;pointer-events:none}.switch-track{position:relative;flex-shrink:0;width:44px;height:24px;background:var(--p-contrast-low);border-radius:999px;transition:background var(--p-dur-short) var(--p-ease-base)}.switch-track::before{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;background:var(--p-bg-base);border-radius:50%;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:transform var(--p-dur-short) var(--p-ease-base)}.switch-wrap:hover .switch-track{background:var(--p-contrast-medium)}.switch-wrap input:checked+.switch-track{background:var(--p-primary)}.switch-wrap input:checked+.switch-track::before{transform:translateX(20px)}.switch-wrap input:disabled+.switch-track{opacity:.55;cursor:not-allowed}.switch-wrap:has(input:disabled){cursor:not-allowed}.switch-wrap:has(input:disabled) .switch-label{color:var(--p-contrast-medium)}.switch-wrap .switch-label{font-size:14px;color:var(--p-primary);font-weight:500;line-height:1.4}.switch-wrap .switch-hint{font-size:12px;color:var(--p-contrast-medium);font-weight:400;display:block;margin-top:2px}.stepper{display:flex;align-items:center;gap:8px;padding:var(--p-sp-m) 0;margin-bottom:var(--p-sp-l);flex-wrap:wrap}.step{display:flex;align-items:center;gap:10px;padding:8px 16px 8px 8px;border-radius:999px;transition:background var(--p-dur-short) var(--p-ease-base)}.step .step-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0;font-family:inherit;line-height:1}.step .step-label{font-size:14px;font-weight:500;color:var(--p-contrast-medium);white-space:nowrap}.step[data-state=current]{background:rgba(148,149,152,.18)}.step[data-state=current] .step-num{background:var(--p-primary);color:var(--p-bg-base)}.step[data-state=current] .step-label{color:var(--p-primary);font-weight:600}.step[data-state=complete] .step-num{background:var(--p-notify-success);color:#fff}.step[data-state=complete] .step-label{color:var(--p-primary)}.step[data-state=upcoming] .step-num{background:transparent;color:var(--p-contrast-medium);border:1.5px solid var(--p-contrast-low)}.step-sep{flex:0 0 24px;height:1.5px;background:var(--p-contrast-low);min-width:16px}.spinner{display:inline-block;width:18px;height:18px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}button.primary.loading{position:relative;color:transparent}button.primary.loading .spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--p-bg-base);border-color:var(--p-bg-base);border-top-color:transparent}.segmented{display:inline-flex;background:var(--p-bg-surface);border:1px solid var(--p-contrast-low);border-radius:999px;padding:2px;gap:0;font-family:inherit}.segmented button{all:unset;cursor:pointer;padding:6px 18px;font-size:14px;font-weight:500;color:var(--p-contrast-medium);border-radius:999px;transition:background var(--p-dur-short) var(--p-ease-base),color var(--p-dur-short) var(--p-ease-base);text-align:center;min-width:90px}.segmented button:hover:not([aria-pressed=true]){color:var(--p-primary);background:rgba(148,149,152,.18)}.segmented button[aria-pressed=true]{background:var(--p-bg-base);color:var(--p-primary);font-weight:600;box-shadow:0 1px 3px rgba(1,2,5,.08)}.segmented button:focus-visible{outline:4px solid var(--p-state-focus);outline-offset:2px}:root[data-theme="dark"]{color-scheme:dark}:root[data-theme="light"]{color-scheme:light}:root[data-theme="dark"] select{background-image:url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8' fill='none' stroke='%23FBFBFD' stroke-width='1.5'%3E%3Cpath d='M1 1.5l5 5 5-5'/%3E%3C/svg%3E")}:root[data-theme="dark"] .file-chip:hover{background:hsl(240 2% 14%)}.theme-toggle{background:transparent;border:1px solid var(--p-contrast-low);border-radius:50%;width:36px;height:36px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--p-primary);justify-self:end;padding:0;font-family:inherit;transition:background var(--p-dur-short) var(--p-ease-base),border-color var(--p-dur-short) var(--p-ease-base)}.theme-toggle:hover{background:var(--p-state-hover);border-color:var(--p-primary)}.theme-toggle svg{width:18px;height:18px;display:block;fill:currentColor}.theme-toggle .sun-icon,.theme-toggle .moon-icon{display:none}:root[data-theme="light"] .theme-toggle .moon-icon,:root:not([data-theme]) .theme-toggle .moon-icon{display:block}:root[data-theme="dark"] .theme-toggle .sun-icon{display:block}</style>
+<script>(function(){try{var t=localStorage.getItem("invoiceTool.theme");if(t==="dark"||t==="light"){document.documentElement.setAttribute("data-theme",t)}else{document.documentElement.setAttribute("data-theme","light")}}catch(e){document.documentElement.setAttribute("data-theme","light")}})();</script></head><body><header><h1>Invoice Request Generator</h1><div class="brand-mark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 4500 300" aria-label="Porsche"><title>Porsche</title><path fill="currentColor" d="M502 221c48.1 0 74-25.9 74-74V74c0-48.1-25.9-74-74-74H0v300h68v-79h434zm6-143v65c0 7.8-4.2 12-12 12H68V66h428c7.8 0 12 4.2 12 12zm228 222c-48.1 0-74-25.9-74-74V74c0-48.1 25.9-74 74-74h417c48.1 0 74 25.9 74 74v152c0 48.1-25.9 74-74 74H736zm411-66c7.8 0 12-4.2 12-12V78c0-7.8-4.2-12-12-12H742c-7.8 0-12 4.2-12 12v144c0 7.8 4.2 12 12 12h405zm675-36c39.844 16.757 67.853 56.1 68 102h-68c0-54-25-79-79-79h-361v79h-68V0h502c48.1 0 74 25.9 74 74v50.14c0 46.06-23.75 71.76-68 73.86zm-12-43c7.8 0 12-4.2 12-12V78c0-7.8-4.2-12-12-12h-428v89h428zm162-81c0-48.1 25.9-74 74-74h492v56h-486c-7.8 0-12 4.2-12 12v42c0 7.8 4.2 12 12 12h422c48.1 0 74 25.9 74 74v30c0 48.1-25.9 74-74 74h-492v-56h486c7.8 0 12-4.2 12-12v-42c0-7.8-4.2-12-12-12h-422c-48.1 0-74-25.9-74-74V74zm661 0c0-48.1 25.9-74 74-74h480v66h-474c-7.8 0-12 4.2-12 12v144c0 7.8 4.2 12 12 12h474v66h-480c-48.1 0-74-25.9-74-74V74zM3817 0v300h-68V183h-407v117h-68V0h68v117h407V0h68zm156 56v66h527v56h-527v66h527v56h-595V0h595v56h-527z"/></svg></div><button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle dark mode"><svg class="moon-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg><svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zm-1-5h2v3h-2zm0 17h2v3h-2zM4.22 5.64l1.42-1.42 2.12 2.12-1.41 1.41zm12.02 12.02 1.42-1.42 2.12 2.12-1.41 1.41zM2 11h3v2H2zm17 0h3v2h-3zM5.64 19.78 4.22 18.36l2.12-2.12 1.41 1.41zM18.36 4.22l-1.42 1.42-2.12-2.12 1.41-1.41z"/></svg></button></header>
+<main><div class="stepper" id="workflowStepper"><div class="step" data-state="current" data-step="1"><div class="step-num">1</div><div class="step-label">Drop files</div></div><div class="step-sep"></div><div class="step" data-state="upcoming" data-step="2"><div class="step-num">2</div><div class="step-label">Review details</div></div><div class="step-sep"></div><div class="step" data-state="upcoming" data-step="3"><div class="step-num">3</div><div class="step-label">Generate</div></div></div><div class="panel"><h3>Step 1 - Drop order forms here</h3><div class="dropzone" id="dropzone"><h2>Drop PDF files here, or click to choose</h2><input type="file" id="fileInput" multiple accept="application/pdf,.pdf"></div><div class="files" id="filesList"></div><div id="missingDocNotice" class="notice warning hidden" style="margin-top:var(--p-sp-m)"></div></div><details class="instructions" id="instructionsAccordion" open><summary><span>How to use this tool</span><svg class="accordion-marker" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><div class="instructions-body"><p>Drop one or more PDFs onto the box above. The tool reads each PDF, decides which type it is, then opens a review form pre-filled with the data it found. You check the values, fill in anything missing, then click <strong>Generate Invoice Request</strong> to download a populated Excel file.</p><h4>Which PDFs to drop</h4><p><span class="tag new">New order</span> Drop <strong>both</strong> the New Vehicle Order Form <strong>and</strong> the matching Build Sheet Retail. Either one alone gives you only half the data.</p><p><span class="tag used">Used order</span> Drop the Used Vehicle Order Form (single PDF, has &quot;Order ID&quot; and &quot;New/Used: Used&quot;).</p><p><span class="tag hpi">HPI</span> Optional. Drop one or two HPI reports for part-exchange vehicles. Auto-fills the Part Exchange section with reg, VIN, make/model, colour, owners and engine number. <strong>Must be a text-based PDF</strong> - see the tip below.</p><h4>What you must type in yourself</h4><ul><li><strong>Delivery Date and Invoice Date</strong> - both required for new AND used cars. The used order form&apos;s Estimated Handover is often speculative, so even when it pre-fills the dates, please verify and overwrite them with the actual handover/invoice dates before generating.</li><li><strong>CO2 emissions (g/km)</strong> for new cars - the tool defaults to 0 only for confirmed electrics (Taycan, Macan Electric, Cayenne Electric). For petrol or hybrid cars, look up the WLTP figure on the build sheet. The tool then auto-calculates the First Year VED from the gov.uk table.</li><li><strong>Finance Amount</strong> when the &quot;On Finance?&quot; tick box is on.</li><li><strong>Part Exchange financials</strong>: Purchase Price (what you paid the customer), SIV (CAP/Glass valuation) and Finance Settlement (only if outstanding finance was flagged on HPI - tick the box to reveal the field).</li></ul><h4>How the calculation flows</h4><p>Live in the form: New car price + factory options - dealer discount + accessories + VAT + VED + reg fee, then less deposit, less PX customer equity, less finance amount = balance from customer. The Excel mirrors the same maths and reconciles to the order form total.</p><h4>Other things the tool handles</h4><ul><li><strong>Sold to Company</strong> - if the order form has a company name, the Invoice To section uses the company in cell L12 and leaves Contact Name blank. Switch between Individual and Company in the form to override.</li><li><strong>On Finance?</strong> - the Invoice To section is overridden with Porsche Financial Services (Brunswick Court, Milton Keynes). Deliver To stays as the customer.</li><li><strong>Used car warranty &amp; assistance on finance</strong> - if On Finance is ticked, warranty (911 - 24 Months) and assistance (Porsche Assist - 24 months) move to the supplementary Dealer Options block.</li><li><strong>Accessories</strong> - lines from the order form&apos;s Tequipment - Taxable or Dealer Fitted Options - Taxable section auto-fill the seven Dealer Fit Options rows on the spreadsheet.</li></ul><div class="notice info" style="margin:var(--p-sp-m) 0;"><span class="notice-icon"><svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor"/><rect x="11.25" y="7.5" width="1.5" height="1.5" fill="#fff"/><rect x="11.25" y="10" width="1.5" height="6" fill="#fff"/></svg></span><div><div class="notice-title">Tip - HPI PDFs</div><div class="notice-body">Use <code>Ctrl+P &rarr; Save as PDF</code> in Chrome (not Microsoft &quot;Print to PDF&quot;) when exporting the HPI report. Microsoft Print to PDF saves as images and the tool can&apos;t read the text. If your HPI portal has a built-in &quot;Download PDF&quot; or &quot;Save Certificate&quot; button, that&apos;s the cleanest source of all.</div></div></div><h4>If something goes wrong</h4><ul><li>PDF labelled <em>Unrecognised</em> - use the override dropdown on the file chip to set it manually.</li><li>Field missing or wrong - everything on the review form is editable before you click Generate.</li><li>Generate button greyed out - hover over it for a tooltip explaining what is missing (usually CO2 emissions, finance amount, or PX details).</li></ul></div></details><div class="panel hidden" id="reviewPanel"><div class="tabs" id="modeTabs"></div><div id="reviewForm"></div><div class="actions"><button class="primary" id="generateBtn" disabled>Generate Invoice Request</button><button class="secondary" id="resetBtn">Reset</button><span id="status" class="status hidden"></span></div></div><div id="modalRoot"></div></main>
+<div class="version-footer"><strong>Invoice Request Generator</strong>  &middot;  v2.1.2 build 2026.05.30.0420  &middot;  Porsche Centre Guildford</div>
 <script>
 /**
  * @licstart The following is the entire license notice for the
@@ -342,7 +343,76 @@ function emptyPx() {
 let files = [], mode = null, reviewData = {}, onFinance = false;
 const $ = (s) => document.querySelector(s);
 
-function showStatus(msg, kind) { const el = $("#status"); el.textContent = msg; el.className = "status " + kind; el.classList.remove("hidden"); }
+function noticeIconSvg(kind){
+  // PDS v4 shape paths + explicit white inner symbol for crisp contrast
+  // Shape uses currentColor (state main colour); symbol is hardcoded white
+  if(kind==="success") return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor"/><path fill="#fff" d="m10.74 15.69-3.8-3.8 1.07-1.05 2.73 2.73 5.25-5.26 1.06 1.06z"/></svg>';
+  if(kind==="warning") return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M21.58 18.26 13.3 3.75A1.5 1.5 0 0 0 12 3a1.5 1.5 0 0 0-1.3.75l-8.28 14.5a1.5 1.5 0 0 0 0 1.5c.28.47.76.75 1.3.75h16.56a1.5 1.5 0 0 0 1.3-2.25"/><rect x="11" y="15.5" width="2" height="2" fill="#fff"/><path fill="#fff" d="m12.6 14.5-1.2 0L11 8.5h2z"/></svg>';
+  if(kind==="error") return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path fill="currentColor" d="M18 3H6a2 2 0 0 0-2 2v12c0 1.1.9 2 2 2h4l2 2 2-2h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2"/><path fill="#fff" d="m13 6.5-.4 5.5h-1.2L11 6.5z"/><rect x="11" y="13.5" width="2" height="2" fill="#fff"/></svg>';
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><circle cx="12" cy="12" r="9" fill="currentColor"/><rect x="11.25" y="7.5" width="1.5" height="1.5" fill="#fff"/><rect x="11.25" y="10" width="1.5" height="6" fill="#fff"/></svg>';
+}
+function closeIconSvg(){
+  return '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><path d="M18.3 5.71 12 12.01l-6.3-6.3-1.4 1.4 6.29 6.3-6.3 6.3 1.41 1.4 6.3-6.3 6.3 6.3 1.4-1.4-6.3-6.3 6.3-6.3z"/></svg>';
+}
+
+function showHpiNotFoundModal(filename, wrongType) {
+  const root = document.getElementById("modalRoot");
+  if (!root) return;
+  const nameHtml = filename ? '<strong>' + filename.replace(/[<>&]/g,"") + '</strong>' : 'The file you uploaded';
+  const typeLabels = {"new-order":"New Vehicle Order Form","build":"Build Sheet","used-order":"Used Vehicle Order Form","unknown-order":"Order Form"};
+  let title, body;
+  if (wrongType && typeLabels[wrongType]) {
+    title = "Wrong file type";
+    body = '<p>' + nameHtml + ' looks like a <strong>' + typeLabels[wrongType] + '</strong>, not an HPI report. This dropzone only accepts HPI reports for the part-exchange vehicle.</p>'
+      + '<p>If you meant to add this as an order form, drop it on the main <strong>Step 1</strong> dropzone at the top of the page instead.</p>'
+      + '<p>If you meant to add an HPI for the part exchange, please drop a HPI report PDF (typically from HPI Check or Trade Services).</p>';
+  } else {
+    title = "HPI report not detected";
+    body = '<p>' + nameHtml + ' could not be read as an HPI report. The most common cause is that the PDF was saved as an image rather than text, so the tool cannot read the data inside.</p>'
+      + '<h3>How to save your HPI as a text-based PDF</h3>'
+      + '<ul>'
+      + '<li>Open the HPI report or certificate in <strong>Google Chrome</strong>.</li>'
+      + '<li>Press <code>Ctrl + P</code> (or <code>Cmd + P</code> on Mac) to open the print dialog.</li>'
+      + '<li>Set <strong>Destination</strong> to <strong>Save as PDF</strong>. Do <strong>not</strong> use "Microsoft Print to PDF" - that saves an image, which cannot be read.</li>'
+      + '<li>Click <strong>Save</strong>, then drop the new file on the dropzone again.</li>'
+      + '</ul>'
+      + '<p>If your HPI portal has a <strong>Download PDF</strong> or <strong>Save Certificate</strong> button, that is the cleanest source of all and will always work.</p>';
+  }
+  root.innerHTML = '<div class="modal-backdrop" id="modalBackdrop"><div class="modal-panel error" role="alertdialog" aria-label="' + title + '">'
+    + '<span class="notice-icon">' + noticeIconSvg("error") + '</span>'
+    + '<div class="modal-content"><div class="notice-title">' + title + '</div>' + body + '</div>'
+    + '<button class="modal-dismiss" id="modalCloseBtn" type="button" aria-label="Close notification">' + closeIconSvg() + '</button>'
+    + '</div></div>';
+  document.getElementById("modalCloseBtn").onclick = () => { root.innerHTML = ""; };
+  document.getElementById("modalBackdrop").onclick = (e) => { if (e.target.id === "modalBackdrop") root.innerHTML = ""; };
+}
+
+function showDuplicatePxModal(info) {
+  const root = document.getElementById("modalRoot");
+  if (!root) return;
+  const newName = (info.newName || "").replace(/[<>&]/g,"");
+  const existingName = (info.existingName || "").replace(/[<>&]/g,"");
+  const reg = (info.regNo || "").replace(/[<>&]/g,"");
+  root.innerHTML = '<div class="modal-backdrop" id="modalBackdrop"><div class="modal-panel info" role="alertdialog" aria-label="Part exchange already added">'
+    + '<span class="notice-icon">' + noticeIconSvg("info") + '</span>'
+    + '<div class="modal-content"><div class="notice-title">Part exchange already added</div>'
+    + '<p>The HPI report <strong>' + newName + '</strong> is for vehicle <strong>' + reg + '</strong>, which is already in the Part Exchange list (from <strong>' + existingName + '</strong>). The duplicate was not added.</p>'
+    + '<p>If you intended to add a <strong>different</strong> vehicle, please check the HPI report and try again with the correct file.</p>'
+    + '</div>'
+    + '<button class="modal-dismiss" id="modalCloseBtn" type="button" aria-label="Close notification">' + closeIconSvg() + '</button>'
+    + '</div></div>';
+  document.getElementById("modalCloseBtn").onclick = () => { root.innerHTML = ""; };
+  document.getElementById("modalBackdrop").onclick = (e) => { if (e.target.id === "modalBackdrop") root.innerHTML = ""; };
+}
+
+function showStatus(msg, kind, title) {
+  const el = $("#status");
+  const k = kind || "info";
+  const t = title || (k==="success"?"Success":k==="error"?"Error":k==="warning"?"Working":"Info");
+  el.className = "notice " + k;
+  el.innerHTML = '<span class="notice-icon">' + noticeIconSvg(k) + '</span><div><div class="notice-title">' + t + '</div><div class="notice-body">' + msg + '</div></div>';
+  el.classList.remove("hidden");
+}
 function hideStatus() { $("#status").classList.add("hidden"); }
 
 function typeLabel(t) {
@@ -385,15 +455,18 @@ function classifyAndPrepare() {
   else mode = null;
   const notice = $("#missingDocNotice");
   if (mode === "new" && hasNewOrder && !hasBuild) {
-    notice.innerHTML = "<strong>Build Sheet needed.</strong> You uploaded the New Vehicle Order Form. Please also drop the matching <strong>Build Sheet</strong>.";
+    notice.innerHTML = '<span class="notice-icon">' + noticeIconSvg("warning") + '</span><div><div class="notice-title">Build Sheet needed</div><div class="notice-body">You uploaded the New Vehicle Order Form. Please also drop the matching <strong>Build Sheet</strong>.</div></div>';
+    notice.className = "notice warning";
     notice.classList.remove("hidden");
   } else if (mode === "new" && hasBuild && !hasNewOrder) {
-    notice.innerHTML = "<strong>New Vehicle Order Form needed.</strong> You uploaded the Build Sheet. Please also drop the matching <strong>New Vehicle Order Form</strong>.";
+    notice.innerHTML = '<span class="notice-icon">' + noticeIconSvg("warning") + '</span><div><div class="notice-title">New Vehicle Order Form needed</div><div class="notice-body">You uploaded the Build Sheet. Please also drop the matching <strong>New Vehicle Order Form</strong>.</div></div>';
+    notice.className = "notice warning";
     notice.classList.remove("hidden");
   } else {
-    notice.classList.add("hidden");
+    notice.className = "notice warning hidden";
   }
-  if (!mode) { $("#reviewPanel").classList.add("hidden"); return; }
+  if (!mode) { $("#reviewPanel").classList.add("hidden"); updateStepper(1); const acc = document.getElementById("instructionsAccordion"); if (acc) { acc.open = true; delete acc.dataset.autoClosed; } return; }
+  const wasAwaitingPxHpi = reviewData && reviewData.showSecondPxDropzone;
   if (mode === "new") {
     const o = files.find(f => f.type==="new-order"); const b = files.find(f => f.type==="build");
     reviewData = combineNew(o?o.data:{}, b?b.data:{});
@@ -418,8 +491,32 @@ function classifyAndPrepare() {
       if (h.hasFinance) reviewData.px[i].hasSettlement = true;
     }
   }
+  // If the user clicked + Add second part exchange and then dropped a non-HPI
+  // (or a file that failed to parse), keep the inline dropzone visible so they
+  // can try again. Once a 2nd HPI is processed, showSecondPx takes over and the
+  // dropzone naturally disappears.
+  if (wasAwaitingPxHpi && !reviewData.showSecondPx) reviewData.showSecondPxDropzone = true;
   renderReviewForm();
   $("#reviewPanel").classList.remove("hidden");
+  updateStepper(2);
+  // Accordion behaviour:
+  //  - Complete doc set (used alone OR new+build together) -> auto-close instructions (once per session)
+  //  - Incomplete (or nothing) -> reopen instructions and clear the auto-close flag so it can fire again
+  const accordion = document.getElementById("instructionsAccordion");
+  const completeNew = mode === "new" && hasNewOrder && hasBuild;
+  const completeUsed = mode === "used" && hasUsedOrder;
+  if (accordion) {
+    if (completeNew || completeUsed) {
+      if (!accordion.dataset.autoClosed) {
+        accordion.open = false;
+        accordion.dataset.autoClosed = "1";
+      }
+    } else {
+      // Doc set is incomplete or empty - reopen and reset so we can auto-close again later
+      accordion.open = true;
+      delete accordion.dataset.autoClosed;
+    }
+  }
 }
 
 function combineNew(order, build) {
@@ -492,6 +589,20 @@ function combineUsed(used) {
 
 function monthName(n) { return ["January","February","March","April","May","June","July","August","September","October","November","December"][Math.max(0,Math.min(11,n-1))]; }
 
+function toIsoDate(day, monthName, year) {
+  if (!day || !monthName || !year) return '';
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const m = months.indexOf(monthName);
+  if (m < 0) return '';
+  return year + '-' + String(m+1).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+}
+function fromIsoDate(iso) {
+  if (!iso) return {day:null, month:'', year:null};
+  const parts = iso.split('-');
+  if (parts.length !== 3) return {day:null, month:'', year:null};
+  return {year: parseInt(parts[0]), month: monthName(parseInt(parts[1])), day: parseInt(parts[2])};
+}
+
 function renderReviewForm() {
   $("#modeTabs").innerHTML = '<div class="tab active">' + (mode==="new"?"New Car Invoice Request":"Used Car Invoice Request") + '</div>';
   const form = $("#reviewForm");
@@ -507,7 +618,14 @@ function renderReviewForm() {
       if (inp.type === "checkbox") v = inp.checked;
       reviewData[k] = v;
       if (k === "soldTo") { renderReviewForm(); return; }
-      if (k === "hasPx") { renderReviewForm(); return; }
+      if (k === "hasPx") { if (!v) { reviewData.pxSlot1Manual = false; reviewData.showSecondPxDropzone = false; } renderReviewForm(); return; }
+      if (k === "deliveryDate" || k === "invoiceDate") {
+        const parts = fromIsoDate(v);
+        const prefix = k === "deliveryDate" ? "delivery" : "invoice";
+        reviewData[prefix+"Day"] = parts.day;
+        reviewData[prefix+"Month"] = parts.month;
+        reviewData[prefix+"Year"] = parts.year;
+      }
       if (k === "carModel" && mode === "new") {
         const ft = getFuelType(v);
         const emInp = form.querySelector('[data-key="emissions"]');
@@ -556,8 +674,76 @@ function renderReviewForm() {
       updateTotals();
     });
   });
+  // Wire up segmented controls (e.g. Sold to)
+  form.querySelectorAll(".segmented[data-key]").forEach(seg => {
+    const k = seg.dataset.key;
+    seg.querySelectorAll("button[data-value]").forEach(b => {
+      b.onclick = () => {
+        reviewData[k] = b.dataset.value;
+        if (k === "soldTo") { renderReviewForm(); return; }
+        updateTotals();
+      };
+    });
+  });
   const addBtn = form.querySelector("#addSecondPx");
-  if (addBtn) addBtn.onclick = () => { reviewData.showSecondPx = true; renderReviewForm(); };
+  if (addBtn) addBtn.onclick = () => { reviewData.showSecondPxDropzone = true; renderReviewForm(); };
+  const manualBtn = form.querySelector("#pxSecondManual");
+  if (manualBtn) manualBtn.onclick = () => { reviewData.showSecondPx = true; reviewData.showSecondPxDropzone = false; renderReviewForm(); };
+  const cancelBtn = form.querySelector("#pxSecondCancel");
+  if (cancelBtn) cancelBtn.onclick = () => { reviewData.showSecondPxDropzone = false; renderReviewForm(); };
+  const pxDz = form.querySelector("#pxSecondDropzone");
+  const pxFi = form.querySelector("#pxSecondFileInput");
+  if (pxDz && pxFi) {
+    pxDz.onclick = (e) => { if (e.target.id !== "pxSecondFileInput") pxFi.click(); };
+    pxDz.ondragover = (e) => { e.preventDefault(); pxDz.classList.add("dragover"); };
+    pxDz.ondragleave = () => pxDz.classList.remove("dragover");
+    pxDz.ondrop = async (e) => { e.preventDefault(); pxDz.classList.remove("dragover"); await handlePxHpiDrop(Array.from(e.dataTransfer.files)); };
+    pxFi.onchange = async (e) => { const picked = Array.from(e.target.files); e.target.value = ""; await handlePxHpiDrop(picked); };
+  }
+  const pxFirstManual = form.querySelector("#pxFirstManual");
+  if (pxFirstManual) pxFirstManual.onclick = () => { reviewData.pxSlot1Manual = true; renderReviewForm(); };
+  const pxFirstDz = form.querySelector("#pxFirstDropzone");
+  const pxFirstFi = form.querySelector("#pxFirstFileInput");
+  if (pxFirstDz && pxFirstFi) {
+    pxFirstDz.onclick = (e) => { if (e.target.id !== "pxFirstFileInput") pxFirstFi.click(); };
+    pxFirstDz.ondragover = (e) => { e.preventDefault(); pxFirstDz.classList.add("dragover"); };
+    pxFirstDz.ondragleave = () => pxFirstDz.classList.remove("dragover");
+    pxFirstDz.ondrop = async (e) => { e.preventDefault(); pxFirstDz.classList.remove("dragover"); await handlePxHpiDrop(Array.from(e.dataTransfer.files)); };
+    pxFirstFi.onchange = async (e) => { const picked = Array.from(e.target.files); e.target.value = ""; await handlePxHpiDrop(picked); };
+  }
+  form.querySelectorAll('[data-remove-px]').forEach(btn => {
+    btn.onclick = () => {
+      const idx = parseInt(btn.dataset.removePx, 10);
+      const px = reviewData.px[idx];
+      const normReg = (s) => (s||"").replace(/\s+/g,"").toUpperCase();
+      let removedFile = false;
+      if (px && (px.regNo || px.vin)) {
+        const matchIdx = files.findIndex(f => f.type === 'hpi' && f.data && (
+          (px.regNo && f.data.regNo && normReg(f.data.regNo) === normReg(px.regNo)) ||
+          (px.vin && f.data.vin && f.data.vin === px.vin)
+        ));
+        if (matchIdx >= 0) { files.splice(matchIdx, 1); removedFile = true; }
+      }
+      if (removedFile) {
+        renderFiles();
+        classifyAndPrepare();
+      } else {
+        if (idx === 0) {
+          if (reviewData.showSecondPx && reviewData.px[1] && reviewData.px[1].regNo) {
+            reviewData.px[0] = reviewData.px[1];
+            reviewData.px[1] = emptyPx();
+            reviewData.showSecondPx = false;
+          } else {
+            reviewData.px[0] = emptyPx();
+          }
+        } else {
+          reviewData.px[1] = emptyPx();
+          reviewData.showSecondPx = false;
+        }
+        renderReviewForm();
+      }
+    };
+  });
   updateTotals();
 }
 
@@ -607,9 +793,9 @@ function pxSlotHtml(d, slot) {
   };
   const customerEquity = (px.purchasePrice||0) - (px.financeSettlement||0);
   const overAllowance = ((px.siv||0) - (px.purchasePrice||0)) * -1;
-  const financeNote = px.hasFinanceFlag ? '<div style="font-size:11px;color:var(--warn);margin-bottom:8px;">HPI shows outstanding finance on this vehicle. Get the settlement figure from the finance company.</div>' : '';
-  return '<div style="background:rgba(255,183,51,0.04);border:1px solid var(--border);border-radius:6px;padding:14px 16px;margin-bottom:12px;">'
-    + '<div style="font-weight:600;color:var(--accent2);margin-bottom:10px;font-size:13px;letter-spacing:0.5px;">PART EXCHANGE ' + (slot+1) + '</div>'
+  const financeNote = px.hasFinanceFlag ? '<div class="notice warning" style="margin-bottom:12px;font-size:13px;"><span class="notice-icon">' + noticeIconSvg('warning') + '</span><div><div class="notice-title">Outstanding finance detected</div><div class="notice-body">HPI shows outstanding finance on this vehicle. Get the settlement figure from the finance company.</div></div></div>' : '';
+  return '<div style="background:var(--p-bg-surface);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);padding:var(--p-sp-m) var(--p-sp-l);margin-bottom:var(--p-sp-m);">'
+    + '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;"><div style="font-weight:600;color:var(--p-primary);font-size:15px;letter-spacing:-.1px;">Part Exchange ' + (slot+1) + '</div><button type="button" data-remove-px="' + slot + '" style="background:transparent;border:1px solid var(--p-contrast-low);color:var(--p-contrast-medium);border-radius:var(--p-radius-l);cursor:pointer;padding:6px 14px;font-size:12px;font-weight:500;font-family:inherit;transition:all var(--p-dur-short) var(--p-ease-base);" title="Remove this part exchange">Remove</button></div>'
     + financeNote
     + '<div style="font-size:11px;color:var(--muted);margin-bottom:8px;">Vehicle details (auto-filled from HPI if uploaded):</div>'
     + '<div class="grid grid-3">'
@@ -624,10 +810,11 @@ function pxSlotHtml(d, slot) {
     + inp("Trim", "trim")
     + '</div>'
     + '<div style="font-size:11px;color:var(--muted);margin:14px 0 8px;">Financial (mandatory):</div>'
-    + '<div class="row-checkbox" style="margin-bottom:8px;">'
-    + '<input type="checkbox" data-px-slot="' + slot + '" data-px-field="hasSettlement"' + (px.hasSettlement?' checked':'') + '>'
-    + '<label>Outstanding finance / Settlement required (tick to enter settlement figure)</label>'
-    + '</div>'
+    + '<label class="switch-wrap" style="margin-bottom:8px;">'
+    + '<input type="checkbox" class="switch" data-px-slot="' + slot + '" data-px-field="hasSettlement"' + (px.hasSettlement?' checked':'') + (px.hasFinanceFlag?' disabled':'') + '>'
+    + '<span class="switch-track"></span>'
+    + '<span><span class="switch-label">Outstanding finance</span><span class="switch-hint">' + (px.hasFinanceFlag ? 'Locked on — HPI confirmed finance, enter the settlement figure below.' : 'Toggle on if there is outstanding finance to settle.') + '</span></span>'
+    + '</label>'
     + '<div class="grid grid-' + (px.hasSettlement?'3':'2') + '">'
     + inp("Purchase Price * (£)", "purchasePrice", "number", "What we pay customer")
     + (px.hasSettlement ? inp("Finance Settlement * (£)", "financeSettlement", "number", "Must be > 0") : '')
@@ -654,9 +841,41 @@ function pxSectionHtml(d) {
       + '<label for="hasPx">Customer has a part exchange (or drop an HPI to auto-detect)</label>'
       + '</div>';
   }
-  const slot1 = pxSlotHtml(d, 0);
-  const slot2 = d.showSecondPx ? pxSlotHtml(d, 1)
-    : '<button type="button" id="addSecondPx" style="background:transparent;color:var(--accent2);border:1px dashed var(--border);border-radius:4px;padding:9px 14px;font-size:12px;cursor:pointer;width:100%;">+ Add second part exchange</button>';
+  const slot1HasData = !!(d.px && d.px[0] && d.px[0].regNo);
+  const slot1Empty = !slot1HasData;
+  let slot1;
+  if (slot1Empty && !d.pxSlot1Manual) {
+    slot1 = '<div class="dropzone" id="pxFirstDropzone" style="padding:32px;margin-top:8px;">'
+      + '<h2 style="font-size:16px;margin:0 0 var(--p-sp-s);font-weight:600;letter-spacing:-.2px;color:var(--p-primary);">Drop up to two HPI reports here</h2>'
+      + '<p style="margin:0;color:var(--p-contrast-medium);font-size:14px;">Or click to choose. Drop one HPI to fill Part Exchange 1, or two HPIs to fill both slots automatically.</p>'
+      + '<input type="file" id="pxFirstFileInput" accept="application/pdf,.pdf" multiple>'
+      + '</div>'
+      + '<div style="display:flex;justify-content:flex-start;margin-top:12px;">'
+      + '<button type="button" id="pxFirstManual" style="background:transparent;color:var(--p-contrast-medium);border:none;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:underline;padding:4px 0;">No HPI? Enter manually instead</button>'
+      + '</div>';
+  } else {
+    slot1 = pxSlotHtml(d, 0);
+  }
+  // Only show slot 2 controls once slot 1 has a reg number (i.e. has been populated).
+  // Avoids offering + Add second before the user has done anything with slot 1.
+  let slot2 = '';
+  if (slot1HasData) {
+    if (d.showSecondPx) {
+      slot2 = pxSlotHtml(d, 1);
+    } else if (d.showSecondPxDropzone) {
+      slot2 = '<div class="dropzone" id="pxSecondDropzone" style="padding:32px;margin-top:8px;">'
+        + '<h2 style="font-size:16px;margin:0 0 var(--p-sp-s);font-weight:600;letter-spacing:-.2px;color:var(--p-primary);">Drop the second HPI report here</h2>'
+        + '<p style="margin:0;color:var(--p-contrast-medium);font-size:14px;">Or click to choose. The tool will auto-fill the second Part Exchange slot.</p>'
+        + '<input type="file" id="pxSecondFileInput" accept="application/pdf,.pdf">'
+        + '</div>'
+        + '<div style="display:flex;gap:8px;margin-top:12px;justify-content:space-between;align-items:center;">'
+        + '<button type="button" id="pxSecondManual" style="background:transparent;color:var(--p-contrast-medium);border:none;cursor:pointer;font-size:12px;font-family:inherit;text-decoration:underline;padding:4px 0;">No HPI? Enter manually instead</button>'
+        + '<button type="button" id="pxSecondCancel" style="background:transparent;color:var(--p-contrast-medium);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);cursor:pointer;font-size:12px;font-family:inherit;padding:6px 14px;">Cancel</button>'
+        + '</div>';
+    } else {
+      slot2 = '<button type="button" id="addSecondPx" style="background:transparent;color:var(--p-primary);border:1px dashed var(--p-primary);border-radius:var(--p-radius-l);padding:12px 14px;font-size:13px;font-weight:500;cursor:pointer;width:100%;font-family:inherit;transition:background var(--p-dur-short) var(--p-ease-base);margin-top:8px;">+ Add second part exchange</button>';
+    }
+  }
   return '<div class="section-title">Part Exchange</div>'
     + '<div class="row-checkbox" style="margin-bottom:8px;">'
     + '<input type="checkbox" id="hasPx" data-key="hasPx" checked>'
@@ -670,7 +889,11 @@ function customerBlock(d) {
   const nameLabel = d.soldTo==="Company" ? "Contact Person (optional)" : "Customer Name";
   return '<div class="section-title">Customer (Deliver To)</div>'
     + '<div class="grid grid-2">'
-    + selectFld("Sold to","soldTo",d.soldTo,["Individual","Company"])
+    + '<div><label>Sold to</label>'
+      + '<div class="segmented" data-key="soldTo">'
+      + '<button type="button" data-value="Individual" aria-pressed="' + (d.soldTo==="Individual"||!d.soldTo?"true":"false") + '">Individual</button>'
+      + '<button type="button" data-value="Company" aria-pressed="' + (d.soldTo==="Company"?"true":"false") + '">Company</button>'
+      + '</div></div>'
     + companyField
     + fld(nameLabel,"name",d.name)
     + fld("Address","address",d.address)
@@ -689,19 +912,20 @@ function newCarFormHtml(d) {
     + '<div class="grid grid-3">'
     + selectFld("Car Model","carModel",d.carModel,modelOpts)
     + '<div><label>Emissions g/km (WLTP CO2) <span style="color:var(--err);">*required</span></label><input type="number" step="any" data-key="emissions" value="' + emValue + '" placeholder="Type WLTP CO2 from build sheet"></div>'
-    + '<div><label>First Year VED (auto)</label><div id="vedDisplay" style="padding:9px 12px;background:var(--panel2);border:1px solid var(--border);border-radius:4px;font-size:13px;color:var(--accent2);font-weight:600;">&mdash;</div></div>'
+    + '<div><label>First Year VED (auto)</label><div id="vedDisplay" style="width:100%;height:44px;line-height:42px;padding:0 var(--p-sp-m);background:var(--p-bg-surface);border:1px solid var(--p-contrast-low);border-radius:var(--p-radius-l);font-size:14px;color:var(--p-primary);font-weight:600;font-family:inherit;box-sizing:border-box;display:block;">&mdash;</div></div>'
     + '</div>'
-    + '<div style="font-size:11px;color:var(--muted);margin-top:-6px;margin-bottom:14px;">VED from gov.uk first year table (2026/27 rates).</div>'
+    + '<div style="font-size:11px;color:var(--p-contrast-medium);margin-top:6px;margin-bottom:14px;">VED from gov.uk first year table (2026/27 rates).</div>'
     + '<div class="section-title">Dates</div>'
-    + '<div class="grid grid-3">'
-    + fld("Delivery Day","deliveryDay",d.deliveryDay,"number")
-    + selectFld("Delivery Month","deliveryMonth",d.deliveryMonth,monthOpts)
-    + fld("Delivery Year","deliveryYear",d.deliveryYear,"number")
-    + fld("Invoice Day","invoiceDay",d.invoiceDay,"number")
-    + selectFld("Invoice Month","invoiceMonth",d.invoiceMonth,monthOpts)
-    + fld("Invoice Year","invoiceYear",d.invoiceYear,"number")
+    + '<div class="grid grid-2">'
+    + '<div><label>Delivery Date <span style="color:var(--p-notify-error)">*required</span></label><input type="date" data-key="deliveryDate" value="' + toIsoDate(d.deliveryDay, d.deliveryMonth, d.deliveryYear) + '"></div>'
+    + '<div><label>Invoice Date <span style="color:var(--p-notify-error)">*required</span></label><input type="date" data-key="invoiceDate" value="' + toIsoDate(d.invoiceDay, d.invoiceMonth, d.invoiceYear) + '"></div>'
     + '</div>'
     + '<div class="section-title">Pricing (all ex VAT)</div>'
+    + '<label class="switch-wrap" style="margin-bottom:var(--p-sp-m);">'
+    + '<input type="checkbox" class="switch" id="onFinance" data-key="onFinance"' + (onFinance?" checked":"") + '>'
+    + '<span class="switch-track"></span>'
+    + '<span><span class="switch-label">On Finance</span><span class="switch-hint">Invoice To becomes Porsche Financial Services; Deliver To stays as customer.</span></span>'
+    + '</label>'
     + '<div class="grid grid-3">'
     + fld("New Car Price (base + factory options)","newCarPrice",d.newCarPrice,"number")
     + fld("Less Discount (Centre Gesture)","lessDiscount",d.lessDiscount,"number")
@@ -717,10 +941,6 @@ function newCarFormHtml(d) {
     + '</div>'
     + accessoriesHtml(d)
     + pxSectionHtml(d)
-    + '<div class="row-checkbox">'
-    + '<input type="checkbox" id="onFinance" data-key="onFinance"' + (onFinance?" checked":"") + '>'
-    + '<label for="onFinance">On Finance? (Invoice To becomes PFS. Deliver To stays as customer.)</label>'
-    + '</div>'
     + '<div class="section-title">Calculation Check</div>'
     + '<div class="totals" id="totals"></div>';
 }
@@ -739,15 +959,16 @@ function usedCarFormHtml(d) {
     + selectFld("VAT Qualifying","vatQualifying",d.vatQualifying,["No","Yes"])
     + '</div>'
     + '<div class="section-title">Dates</div>'
-    + '<div class="grid grid-3">'
-    + fld("Delivery Day","deliveryDay",d.deliveryDay,"number")
-    + selectFld("Delivery Month","deliveryMonth",d.deliveryMonth,monthOpts)
-    + fld("Delivery Year","deliveryYear",d.deliveryYear,"number")
-    + fld("Invoice Day","invoiceDay",d.invoiceDay,"number")
-    + selectFld("Invoice Month","invoiceMonth",d.invoiceMonth,monthOpts)
-    + fld("Invoice Year","invoiceYear",d.invoiceYear,"number")
+    + '<div class="grid grid-2">'
+    + '<div><label>Delivery Date <span style="color:var(--p-notify-error)">*required</span></label><input type="date" data-key="deliveryDate" value="' + toIsoDate(d.deliveryDay, d.deliveryMonth, d.deliveryYear) + '"></div>'
+    + '<div><label>Invoice Date <span style="color:var(--p-notify-error)">*required</span></label><input type="date" data-key="invoiceDate" value="' + toIsoDate(d.invoiceDay, d.invoiceMonth, d.invoiceYear) + '"></div>'
     + '</div>'
     + '<div class="section-title">Pricing</div>'
+    + '<label class="switch-wrap" style="margin-bottom:var(--p-sp-m);">'
+    + '<input type="checkbox" class="switch" id="onFinance" data-key="onFinance"' + (onFinance?" checked":"") + '>'
+    + '<span class="switch-track"></span>'
+    + '<span><span class="switch-label">On Finance</span><span class="switch-hint">Invoice To becomes Porsche Financial Services; warranty &amp; assistance move to supplementary.</span></span>'
+    + '</label>'
     + '<div class="grid grid-3">'
     + fld("Used Car Retail Price","usedCarPrice",d.usedCarPrice,"number")
     + fld("Gtechniq (ex VAT)","gtechniq",d.gtechniq,"number")
@@ -760,10 +981,6 @@ function usedCarFormHtml(d) {
     + '</div>'
     + accessoriesHtml(d)
     + pxSectionHtml(d)
-    + '<div class="row-checkbox">'
-    + '<input type="checkbox" id="onFinance" data-key="onFinance"' + (onFinance?" checked":"") + '>'
-    + '<label for="onFinance">On Finance? (Invoice To becomes PFS; warranty & assistance go on supplementary.)</label>'
-    + '</div>'
     + '<div class="section-title">Calculation Check</div>'
     + '<div class="totals" id="totals"></div>';
 }
@@ -787,6 +1004,33 @@ function pxTotals(d) {
     overAllowanceSum += ((p.siv||0) - (p.purchasePrice||0)) * -1;
   }
   return { active, netPx, overAllowanceSum };
+}
+
+function markRequiredFields() {
+  const d = reviewData;
+  const setReq = (selector, isEmpty) => {
+    document.querySelectorAll(selector).forEach(el => {
+      if (isEmpty) el.classList.add('required-empty');
+      else el.classList.remove('required-empty');
+    });
+  };
+  if (mode === 'new') {
+    setReq('[data-key="emissions"]', d.emissions == null || isNaN(d.emissions));
+  }
+  setReq('[data-key="deliveryDate"]', !d.deliveryDay || !d.deliveryMonth || !d.deliveryYear);
+  setReq('[data-key="invoiceDate"]', !d.invoiceDay || !d.invoiceMonth || !d.invoiceYear);
+  setReq('[data-key="financeAmount"]', onFinance && (!d.financeAmount || d.financeAmount <= 0));
+  if (d.hasPx && d.px) {
+    const slots = d.showSecondPx ? [0,1] : [0];
+    slots.forEach(i => {
+      const p = d.px[i] || {};
+      const slotStarted = !!(p.regNo || p.purchasePrice || p.siv);
+      setReq('[data-px-slot="'+i+'"][data-px-field="regNo"]', slotStarted && !p.regNo);
+      setReq('[data-px-slot="'+i+'"][data-px-field="purchasePrice"]', slotStarted && !p.purchasePrice);
+      setReq('[data-px-slot="'+i+'"][data-px-field="siv"]', slotStarted && !p.siv);
+      setReq('[data-px-slot="'+i+'"][data-px-field="financeSettlement"]', !!p.hasSettlement && (!p.financeSettlement || p.financeSettlement <= 0));
+    });
+  }
 }
 
 function updateTotals() {
@@ -852,6 +1096,7 @@ function updateTotals() {
       + financeBlock(grand)
       + (d.expectedTotal ? '<div class="row" style="color:var(--muted); margin-top:6px;"><span>PDF expected OTR</span><span>' + gbp(d.expectedTotal) + '</span></div>' : "");
   }
+  markRequiredFields();
   const genBtn = document.getElementById("generateBtn");
   if (genBtn) {
     let disable = false, reason = "";
@@ -887,17 +1132,34 @@ function stripTabs(wb, names) {
   }
 }
 
+
+function updateStepper(activeStep) {
+  const stepper = document.getElementById("workflowStepper");
+  if (!stepper) return;
+  stepper.querySelectorAll(".step").forEach(el => {
+    const n = parseInt(el.dataset.step, 10);
+    if (n < activeStep) el.dataset.state = "complete";
+    else if (n === activeStep) el.dataset.state = "current";
+    else el.dataset.state = "upcoming";
+  });
+}
+
 async function generate() {
   const genBtn = document.getElementById("generateBtn");
-  const origLabel = genBtn ? genBtn.textContent : "";
-  if (genBtn) { genBtn.disabled = true; genBtn.textContent = "Generating..."; }
+  const origHtml = genBtn ? genBtn.innerHTML : "";
+  if (genBtn) {
+    genBtn.disabled = true;
+    genBtn.classList.add("loading");
+    genBtn.innerHTML = origHtml + '<span class="spinner"></span>';
+  }
+  updateStepper(3);
   try {
-  showStatus("Loading template...","warn");
+  showStatus("Loading template...","warning");
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(b64ToArrayBuffer(TEMPLATE_B64));
   if (mode === "new") { populateNew(wb, reviewData); stripTabs(wb,["Approved Cars","Used Car Order Form"]); }
   else { populateUsed(wb, reviewData); stripTabs(wb,["New Cars","Used Car Order Form","RFL"]); }
-  showStatus("Writing file...","warn");
+  showStatus("Writing file...","warning");
   const buf = await wb.xlsx.writeBuffer();
   const blob = new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
   const a = document.createElement("a");
@@ -906,9 +1168,14 @@ async function generate() {
   const tag = mode==="new"?"NEW":"USED";
   a.download = "Invoice Request - " + safeName + " - " + model + " (" + tag + ").xlsx";
   a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
-  showStatus("Done. File downloaded.","ok");
+  showStatus("Done. File downloaded.","success");
+  updateStepper(4); // 4 = all steps complete
   } finally {
-    if (genBtn) { genBtn.textContent = origLabel; updateTotals(); }
+    if (genBtn) {
+      genBtn.classList.remove("loading");
+      genBtn.innerHTML = origHtml;
+      updateTotals();
+    }
   }
 }
 
@@ -1090,39 +1357,107 @@ dz.addEventListener("dragleave", () => dz.classList.remove("dragover"));
 dz.addEventListener("drop", e => { e.preventDefault(); dz.classList.remove("dragover"); handleFiles(Array.from(e.dataTransfer.files)); });
 fi.addEventListener("change", () => { const picked = Array.from(fi.files); fi.value = ""; handleFiles(picked); });
 
+
+async function handlePxHpiDrop(dropped) {
+  if (!dropped || !dropped.length) return;
+  const prevHpi = files.filter(f => f.type==="hpi").length;
+  const prevLen = files.length;
+  const res = await handleFiles(dropped);
+  // Remove any newly-added non-HPI files - PX dropzones only accept HPI reports
+  let removedNonHpiType = null;
+  for (let i = files.length - 1; i >= prevLen; i--) {
+    if (files[i].type !== "hpi") {
+      if (!removedNonHpiType) removedNonHpiType = files[i].type;
+      files.splice(i, 1);
+    }
+  }
+  if (removedNonHpiType) {
+    renderFiles();
+    classifyAndPrepare();
+  }
+  // Decide whether to show a modal
+  if (res.duplicateFound) return; // duplicate modal already shown
+  if (files.filter(f => f.type==="hpi").length === prevHpi) {
+    showHpiNotFoundModal(dropped[0].name, removedNonHpiType);
+  }
+}
+
 async function handleFiles(fileList) {
-  if (typeof window.pdfjsLib === "undefined") { showStatus("PDF library not loaded.", "err"); return; }
+  if (typeof window.pdfjsLib === "undefined") { showStatus("PDF library not loaded.", "error"); return; }
+  let duplicateFound = null;
+  let unreadableSkipped = 0;
+  const normReg = (s) => (s||"").replace(/\s+/g,"").toUpperCase();
   for (const f of fileList) {
     if (!/\.pdf$/i.test(f.name)) continue;
-    showStatus("Reading " + f.name + "...", "warn");
+    showStatus("Reading " + f.name + "...", "warning");
     try {
       const text = await extractText(f);
+      // Reject unreadable PDFs (image-based / scanned). PDF.js typically returns
+      // < 50 chars of useful content from these. We silently drop them here so the
+      // file list at the top doesn't get polluted with documents the tool cannot use.
+      // The originating dropzone (e.g. PX) will surface its own modal explanation.
+      const cleanText = (text||"").replace(/\s+/g,"");
+      if (cleanText.length < 50) {
+        unreadableSkipped++;
+        continue;
+      }
       const type = classify(text);
       let data = {};
       if (type === "new-order") data = extractNewOrder(text);
       else if (type === "build") data = extractBuildSheet(text);
       else if (type === "used-order") data = extractUsedOrder(text);
       else if (type === "hpi") data = extractHpi(text);
+      // Duplicate detection: if this HPI matches an existing HPI in files by reg or VIN, skip it.
+      if (type === "hpi" && (data.regNo || data.vin)) {
+        const dup = files.find(existing => {
+          if (existing.type !== "hpi" || !existing.data) return false;
+          const sameReg = data.regNo && existing.data.regNo && normReg(existing.data.regNo) === normReg(data.regNo);
+          const sameVin = data.vin && existing.data.vin && existing.data.vin === data.vin;
+          return sameReg || sameVin;
+        });
+        if (dup) {
+          if (!duplicateFound) duplicateFound = { newName: f.name, existingName: dup.name, regNo: data.regNo || data.vin };
+          continue;
+        }
+      }
       files.push({name: f.name, file: f, text, type, data});
     } catch (err) {
       console.error("Failed to read", f.name, err);
-      showStatus("Failed to read " + f.name + ": " + err.message, "err");
+      showStatus("Failed to read " + f.name + ": " + err.message, "error");
+      unreadableSkipped++;
     }
   }
   hideStatus();
   renderFiles();
   classifyAndPrepare();
+  if (duplicateFound) showDuplicatePxModal(duplicateFound);
+  return { duplicateFound, unreadableSkipped };
 }
 
 document.getElementById("generateBtn").addEventListener("click", () => {
-  generate().catch(err => { console.error(err); showStatus("Error: " + err.message, "err"); });
+  generate().catch(err => { console.error(err); showStatus("Error: " + err.message, "error"); });
+});
+
+// Theme toggle (light/dark)
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("themeToggle");
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    const current = document.documentElement.getAttribute("data-theme") || "light";
+    const next = current === "dark" ? "light" : "dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try { localStorage.setItem("invoiceTool.theme", next); } catch(e) {}
+  });
 });
 
 document.getElementById("resetBtn").addEventListener("click", () => {
   files = []; mode = null; reviewData = {}; onFinance = false;
+  const accordion = document.getElementById("instructionsAccordion");
+  if (accordion) { accordion.open = true; delete accordion.dataset.autoClosed; }
   renderFiles();
   document.getElementById("reviewPanel").classList.add("hidden");
   hideStatus();
+  updateStepper(1);
   fi.value = "";
 });
 
