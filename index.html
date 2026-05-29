@@ -244,11 +244,21 @@ function extractUsedOrder(text) {
 
 function extractHpi(text) {
   const d = {};
-  // Try labelled patterns first (more robust), fall back to first 17-char alpha-numeric
-  d.vin = findMatch(text, /VIN\/Chassis Number\s+([A-HJ-NPR-Z0-9]{11,17})/i)
-       || findMatch(text, /VIN\s*(?:No\.?|Number)?\s*[:\s]\s*([A-HJ-NPR-Z0-9]{11,17})/i)
-       || findMatch(text, /Chassis(?:\s+Number)?\s*[:\s]\s*([A-HJ-NPR-Z0-9]{11,17})/i)
-       || findMatch(text, /\b([A-HJ-NPR-Z0-9]{17})\b/);
+  // VIN extraction - the label and value can be on different lines, separated by other content.
+  // Strategy: find the label, then scan up to 300 chars ahead for a plausible VIN string.
+  function _findVin() {
+    const labelIdx = text.search(/VIN\/Chassis Number|VIN\s*(?:No\.?|Number)|Chassis(?:\s+Number)?/i);
+    if (labelIdx >= 0) {
+      const window = text.slice(labelIdx, labelIdx + 400);
+      // Look for first 11-17 char alphanumeric token (typical VIN), excluding the label itself
+      const m = window.match(/\b([A-HJ-NPR-Z0-9]{11,17})\b/);
+      if (m) return m[1];
+    }
+    // Fallback: any 17-char alphanumeric in the whole document (modern VINs are exactly 17)
+    const fall = text.match(/\b([A-HJ-NPR-Z0-9]{17})\b/);
+    return fall ? fall[1] : "";
+  }
+  d.vin = _findVin();
   d.regNo = findMatch(text, /\b([A-Z]{2}\d{2}\s?[A-Z]{3})\b/);
   d.make = findMatch(text, /Make\s+([A-Z][A-Z]+?)\s+Year/i);
   d.model = findMatch(text, /Model\s+([^\n]+?)\s+Number of Former/i);
