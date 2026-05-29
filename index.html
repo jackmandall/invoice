@@ -280,8 +280,13 @@ function extractHpi(text) {
   const _formerKeepers = parseInt(findMatch(text, /Number of Former Keepers\s+(\d+)/i) || "0");
   d.owners = _formerKeepers + 1;
   d.co2 = parseInt(findMatch(text, /CO2 Rating\s+(\d+)/i) || "0");
-  // Match "1 finance agreement recorded" tolerant of any whitespace between words (PDF.js may break across lines).
-  d.hasFinance = /\d+\s+finance\s+agreement\s+recorded/i.test(text) || /finance\s+agreement\s+recorded/i.test(text);
+  // Detect outstanding finance via multiple HPI signals (any one is enough)
+  // PDF.js can re-order or break up text so we look for several reliable indicators.
+  d.hasFinance = /agreement\s+recorded/i.test(text)
+              || /outstanding\s+finance/i.test(text)
+              || /Personal\s+Contract\s+Purchase|Hire\s+Purchase|Conditional\s+Sale|Personal\s+Loan/i.test(text)
+              || /Recorded\s+with\s+[A-Z]/i.test(text)
+              || /Recorded\s+against\s+(?:VRM|VIN)/i.test(text);
   d.financeType = findMatch(text, /Type\s+(Personal Contract Purchase|Hire Purchase|Lease|Personal Loan|PCP|HP)/i);
   d.makeModel = (d.make + " " + d.model).trim();
   return d;
