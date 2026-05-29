@@ -407,8 +407,8 @@ function combineNew(order, build) {
     address: addressStreet, postCode, tel: order.tel||"", email: order.email||"",
     carModel: detectedModel,
     emissions: defaultEmissions,
-    deliveryDay: 15, deliveryMonth:"May", deliveryYear: new Date().getFullYear(),
-    invoiceDay: 15, invoiceMonth:"May", invoiceYear: new Date().getFullYear(),
+    deliveryDay: null, deliveryMonth:"", deliveryYear: null,
+    invoiceDay: null, invoiceMonth:"", invoiceYear: null,
     newCarPrice: (order.modelPrice||build.basePrice||0) + (order.vehicleOptions||0),
     lessDiscount: -(order.dealerDeductionsTaxable||0),
     discountReason: "Centre Gesture",
@@ -444,12 +444,12 @@ function combineUsed(used) {
     regNo: used.regNo||"", mileage: used.mileage||0,
     carModel: mapToParamModel(carName, generation),
     vatQualifying: used.vatQualifying || "No",
-    deliveryDay: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[0]) : 15,
-    deliveryMonth: used.estimatedHandover ? monthName(parseInt(used.estimatedHandover.split("/")[1])) : "May",
-    deliveryYear: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[2]) : new Date().getFullYear(),
-    invoiceDay: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[0]) : 15,
-    invoiceMonth: used.estimatedHandover ? monthName(parseInt(used.estimatedHandover.split("/")[1])) : "May",
-    invoiceYear: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[2]) : new Date().getFullYear(),
+    deliveryDay: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[0]) : null,
+    deliveryMonth: used.estimatedHandover ? monthName(parseInt(used.estimatedHandover.split("/")[1])) : "",
+    deliveryYear: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[2]) : null,
+    invoiceDay: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[0]) : null,
+    invoiceMonth: used.estimatedHandover ? monthName(parseInt(used.estimatedHandover.split("/")[1])) : "",
+    invoiceYear: used.estimatedHandover ? parseInt(used.estimatedHandover.split("/")[2]) : null,
     usedCarPrice: used.basicPrice||0,
     gtechniq: used.gtechniq||0,
     warrantyMonths: used.warrantyMonths||24, warrantyPrice: used.warrantyPrice||0,
@@ -653,7 +653,7 @@ function customerBlock(d) {
 
 function newCarFormHtml(d) {
   const modelOpts = ["", ...MODELS];
-  const monthOpts = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthOpts = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
   const emValue = d.emissions == null ? "" : d.emissions;
   return customerBlock(d)
     + '<div class="section-title">Vehicle</div>'
@@ -698,7 +698,7 @@ function newCarFormHtml(d) {
 
 function usedCarFormHtml(d) {
   const modelOpts = ["", ...MODELS];
-  const monthOpts = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const monthOpts = ["","January","February","March","April","May","June","July","August","September","October","November","December"];
   const warrantyOpts = ["None","12 Months","24 Months"];
   const assistOpts = ["None","12 months","24 months"];
   return customerBlock(d)
@@ -828,6 +828,8 @@ function updateTotals() {
     let disable = false, reason = "";
     if (mode === "new" && (d.emissions == null || isNaN(d.emissions))) { disable = true; reason = "Enter the vehicle's CO2 emissions (g/km). Use 0 for fully electric."; }
     if (onFinance && (!d.financeAmount || d.financeAmount <= 0)) { disable = true; reason = "Enter a finance amount greater than £0.00."; }
+    if (!d.deliveryDay || !d.deliveryMonth || !d.deliveryYear) { disable = true; reason = "Enter the Delivery Date (day, month, year)."; }
+    if (!d.invoiceDay || !d.invoiceMonth || !d.invoiceYear) { disable = true; reason = "Enter the Invoice Date (day, month, year)."; }
     if (d.hasPx && d.px) {
       const activeSlots = d.px.slice(0, d.showSecondPx ? 2 : 1);
       for (let i = 0; i < activeSlots.length; i++) {
@@ -857,6 +859,10 @@ function stripTabs(wb, names) {
 }
 
 async function generate() {
+  const genBtn = document.getElementById("generateBtn");
+  const origLabel = genBtn ? genBtn.textContent : "";
+  if (genBtn) { genBtn.disabled = true; genBtn.textContent = "Generating..."; }
+  try {
   showStatus("Loading template...","warn");
   const wb = new ExcelJS.Workbook();
   await wb.xlsx.load(b64ToArrayBuffer(TEMPLATE_B64));
@@ -872,6 +878,9 @@ async function generate() {
   a.download = "Invoice Request - " + safeName + " - " + model + " (" + tag + ").xlsx";
   a.href = URL.createObjectURL(blob); a.click(); URL.revokeObjectURL(a.href);
   showStatus("Done. File downloaded.","ok");
+  } finally {
+    if (genBtn) { genBtn.textContent = origLabel; updateTotals(); }
+  }
 }
 
 function writePxToCells(ws, px, m) {
