@@ -257,7 +257,8 @@ function extractHpi(text) {
     const m = stripped.match(/[A-HJ-NPR-Z0-9]{17}/g);
     if (m) {
       // Skip stripped sequences that are obviously a finance reference (start with many zeros)
-      const vin = m.find(s => !/^0{5,}/.test(s));
+      // Reject finance reference numbers (they start with 0; real VINs never start with 0).
+      const vin = m.find(s => !/^0/.test(s));
       if (vin) return vin;
       return m[0];
     }
@@ -279,7 +280,8 @@ function extractHpi(text) {
   const _formerKeepers = parseInt(findMatch(text, /Number of Former Keepers\s+(\d+)/i) || "0");
   d.owners = _formerKeepers + 1;
   d.co2 = parseInt(findMatch(text, /CO2 Rating\s+(\d+)/i) || "0");
-  d.hasFinance = /\d+ finance agreement recorded/i.test(text);
+  // Match "1 finance agreement recorded" tolerant of any whitespace between words (PDF.js may break across lines).
+  d.hasFinance = /\d+\s+finance\s+agreement\s+recorded/i.test(text) || /finance\s+agreement\s+recorded/i.test(text);
   d.financeType = findMatch(text, /Type\s+(Personal Contract Purchase|Hire Purchase|Lease|Personal Loan|PCP|HP)/i);
   d.makeModel = (d.make + " " + d.model).trim();
   return d;
