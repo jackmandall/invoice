@@ -244,14 +244,24 @@ function extractUsedOrder(text) {
 
 function extractHpi(text) {
   const d = {};
-  // VIN extraction - simply find any 17-char alphanumeric token in the document.
-  // Modern VINs are always 17 characters using A-Z minus I, O, Q, plus 0-9.
-  // HPI reports rarely have other 17-char alphanumeric tokens, so this is robust.
+  // VIN extraction. PDF.js can break the VIN across multiple text items, so we strip
+  // all whitespace from the document first and look for 17 contiguous VIN-valid chars.
+  // Then validate by checking the original text contained those chars (with optional whitespace).
   function _findVin() {
-    // Find all alphanumeric tokens 11-17 chars long. Prefer the first 17-char match (standard VIN length).
+    // Try clean tokens first (fastest path - works when VIN is a single item)
     const all = text.match(/\b[A-HJ-NPR-Z0-9]{11,17}\b/g) || [];
-    const len17 = all.find(t => t.length === 17);
-    if (len17) return len17;
+    const clean17 = all.find(t => t.length === 17);
+    if (clean17) return clean17;
+    // Fallback: strip whitespace and find any 17-char VIN-shaped sequence
+    const stripped = text.replace(/\s+/g, "");
+    const m = stripped.match(/[A-HJ-NPR-Z0-9]{17}/g);
+    if (m) {
+      // Skip stripped sequences that are obviously a finance reference (start with many zeros)
+      const vin = m.find(s => !/^0{5,}/.test(s));
+      if (vin) return vin;
+      return m[0];
+    }
+    // Last resort: clean tokens shorter than 17 (older vehicles)
     return all[0] || "";
   }
   d.vin = _findVin();
